@@ -10,10 +10,12 @@ from app.services.auth_service import decode_access_token
 
 # Paths that don't require Bearer token authentication in middleware
 _PUBLIC_PATHS = {
+    "/",
     "/health",
     "/docs",
     "/redoc",
     "/openapi.json",
+    "/favicon.ico",
     "/api/v1/auth/login",
     "/api/v1/auth/refresh",
     "/api/v1/auth/logout",

@@ -66,7 +66,18 @@ def create_app() -> FastAPI:
     from app.api.v1.router import v1_router
     app.include_router(v1_router, prefix="/api/v1")
 
-    # ── Health Check ───────────────────────────────────────────────────────
+    # ── Root / Health Check ────────────────────────────────────────────────
+    @app.get("/", tags=["Root"])
+    async def root():
+        return {
+            "name": "CoalDrishti AI API",
+            "tagline": "Mine Governance & Statutory Intelligence Platform (SIH26024)",
+            "status": "online",
+            "docs": "/docs",
+            "health": "/health",
+            "version": "1.0.0",
+        }
+
     @app.get("/health", tags=["Health"])
     async def health():
         return {"status": "healthy", "version": "1.0.0", "env": settings.APP_ENV}
