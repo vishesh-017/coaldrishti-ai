@@ -144,7 +144,7 @@ export function DashboardView() {
           <div className="flex items-center gap-2">
             <Sparkles className="w-4 h-4 text-emerald-400 shrink-0 animate-pulse" />
             <span className="text-xs font-mono font-bold text-emerald-300 uppercase tracking-wider">
-              [DEMO MODE] Switch Persona Cockpit:
+              Switch Persona Cockpit:
             </span>
           </div>
 
