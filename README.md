@@ -106,8 +106,8 @@ flowchart TD
 * **Forward Sequence Projections**: Projects sensor trajectories across $t+24\text{h}$, $t+48\text{h}$, and $t+72\text{h}$ using kinematic telemetry acceleration:
   $$\hat{y}(t) = y_0 + v_0 t + \frac{1}{2} a t^2$$
 * **Dual-Line CI Visualizer**: Visualizes historical telemetry transitioning into predictive forecasts accompanied by shaded 95% Confidence Interval bands:
-  $$\text{CI}_{95\%} = \hat{y}(t) \pm 1.96 \cdot \text{SE} \cdot \sqrt{\frac{t}{24}}$$
-* **CMR 2017 Early-Warning Tripwires**: Flags methane buildup ($\text{CH}_4 \ge 0.75\%$) and spontaneous heating ($\frac{d\text{CO}}{dt} \ge 3\text{ ppm/hr}$) hours before physical thresholds are breached.
+  $$\text{CI}_{95} = \hat{y}(t) \pm 1.96 \cdot \text{SE} \cdot \sqrt{\frac{t}{24}}$$
+* **CMR 2017 Early-Warning Tripwires**: Flags methane buildup ($\text{CH}_4 \ge 0.75$%) and spontaneous heating ($\frac{d\text{CO}}{dt} \ge 3\text{ ppm/hr}$) hours before physical thresholds are breached.
 
 ### 3. 🤖 Unsupervised ML Anomaly Detection (`IsolationForest`)
 * **Multi-Variate Safety Envelopes**: Evaluates multi-dimensional feature spaces $[\text{CH}_4, \text{CO}, \frac{d\text{CO}}{dt}, \text{AirVelocity}, \text{OvertimeHours}]$ to detect complex micro-anomalies that evade static threshold checks.
