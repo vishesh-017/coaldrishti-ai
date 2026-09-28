@@ -8,6 +8,12 @@ from motor.motor_asyncio import AsyncIOMotorClient
 from beanie import init_beanie
 import redis.asyncio as aioredis
 
+# Fix for Beanie 2.0 + Motor: Beanie checks callable(database.client.append_metadata).
+# Without this, Motor's __getattr__ returns an AsyncIOMotorDatabase named 'append_metadata',
+# which defines a __call__ that raises TypeError: MotorDatabase object is not callable.
+if not hasattr(AsyncIOMotorClient, "append_metadata"):
+    AsyncIOMotorClient.append_metadata = None
+
 from app.config import settings
 from app.infrastructure.database.models import document_models
 from app.infrastructure.database.seeds.telangana_mines import seed_telangana_mines_data
@@ -25,7 +31,7 @@ async def get_mongo_client() -> AsyncIOMotorClient:
     if _mongo_client is None:
         _mongo_client = AsyncIOMotorClient(
             settings.MONGODB_URL,
-            serverSelectionTimeoutMS=2000,
+            serverSelectionTimeoutMS=5000,
         )
     return _mongo_client
 
@@ -42,6 +48,11 @@ async def init_beanie_db(database_name: str = "coal_governance", seed_if_empty: 
         client = await get_mongo_client()
         await client.admin.command("ping")
         db = client[database_name]
+        
+        # Ensure instance also has append_metadata = None
+        if not hasattr(client, "append_metadata"):
+            client.__dict__["append_metadata"] = None
+
         await init_beanie(database=db, document_models=document_models)
         logger.info("MongoDB connection established and Beanie ODM initialized", database=database_name)
         mode = "live_mongodb"
