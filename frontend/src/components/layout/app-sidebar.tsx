@@ -20,11 +20,14 @@ import {
   Truck,
   Bell,
   Activity,
-  Award,
+  FolderLock,
+  ChevronLeft,
+  ChevronRight,
+  ShieldAlert,
+  Radio,
+  Sparkles,
   Layers,
   Flame,
-  AlertTriangle,
-  FolderLock,
 } from "lucide-react";
 
 interface NavItem {
@@ -32,197 +35,85 @@ interface NavItem {
   href: string;
   icon: React.ElementType;
   badge?: string;
+  badgeColor?: string;
 }
 
 export function AppSidebar() {
   const [mounted, setMounted] = useState(false);
+  const [isCollapsed, setIsCollapsed] = useState(false);
   const pathname = usePathname();
   const { userRole, userName } = useAuthStore();
 
   useEffect(() => {
     setMounted(true);
+    // Remember sidebar collapsed preference
+    const saved = localStorage.getItem("coal_gov_sidebar_collapsed");
+    if (saved === "true") setIsCollapsed(true);
   }, []);
+
+  const toggleCollapsed = () => {
+    const next = !isCollapsed;
+    setIsCollapsed(next);
+    localStorage.setItem("coal_gov_sidebar_collapsed", String(next));
+  };
 
   const getNavItemsForRole = (role: UserRole): NavItem[] => {
     switch (role) {
       case UserRole.CONTRACTOR_ADMIN:
         return [
-          {
-            label: "Contractor Cockpit",
-            href: "/overview",
-            icon: LayoutDashboard,
-            badge: "Multi-Pit",
-          },
-          {
-            label: "Production & Dispatch",
-            href: "/contractor/production",
-            icon: Truck,
-            badge: "Tonnage",
-          },
-          {
-            label: "Safety Risk Score",
-            href: "/contractor/risk-score",
-            icon: ShieldCheck,
-            badge: "KPIs",
-          },
-          {
-            label: "Active Cast Sites",
-            href: "/contractor/mines",
-            icon: Map,
-            badge: "4 Mines",
-          },
-          {
-            label: "Operational Notifications",
-            href: "/notifications",
-            icon: Bell,
-            badge: "Live",
-          },
+          { label: "Contractor Cockpit", href: "/overview", icon: LayoutDashboard, badge: "Fleet" },
+          { label: "Production & Haul", href: "/contractor/production", icon: Truck, badge: "Tonnage" },
+          { label: "Safety Scorecard", href: "/contractor/risk-score", icon: ShieldCheck },
+          { label: "Active Cast Sites", href: "/contractor/mines", icon: Map, badge: "4 Mines" },
+          { label: "Data Logs", href: "/data-logs", icon: FolderLock },
+          { label: "Notifications", href: "/notifications", icon: Bell },
         ];
 
       case UserRole.DGMS_INSPECTOR:
       case UserRole.REGULATORY_OFFICER:
         return [
-          {
-            label: "Inspector Cockpit",
-            href: "/overview",
-            icon: LayoutDashboard,
-            badge: "Schedules",
-          },
-          {
-            label: "Statutory Inspections",
-            href: "/inspections",
-            icon: ClipboardCheck,
-            badge: "Audits",
-          },
-          {
-            label: "New Form-IV Audit",
-            href: "/inspections/new",
-            icon: FileCheck2,
-            badge: "Geofenced",
-          },
-          {
-            label: "Inspector Scheduling",
-            href: "/schedules",
-            icon: CalendarDays,
-            badge: "Auto-Escalate",
-          },
-          {
-            label: "Statutory CAPA Board",
-            href: "/capa",
-            icon: KanbanSquare,
-            badge: "6-Stage",
-          },
-          {
-            label: "Geospatial & Satellite Map",
-            href: "/map",
-            icon: Map,
-            badge: "ESRI Sat",
-          },
+          { label: "Inspector Cockpit", href: "/overview", icon: LayoutDashboard, badge: "DGMS" },
+          { label: "Statutory Audits", href: "/inspections", icon: ClipboardCheck, badge: "Form-IV" },
+          { label: "New Form-IV Audit", href: "/inspections/new", icon: FileCheck2, badge: "GPS" },
+          { label: "Audit Schedules", href: "/schedules", icon: CalendarDays },
+          { label: "CAPA Directives", href: "/capa", icon: KanbanSquare, badge: "6-Stage" },
+          { label: "AI Hazard Risk", href: "/analytics", icon: BarChart3, badge: "72h" },
+          { label: "Audit Ledger", href: "/audit-ledger", icon: FileKey2, badge: "SHA-256" },
+          { label: "GIS Mine Map", href: "/map", icon: Map, badge: "Sat" },
         ];
 
       case UserRole.COLLIERY_MANAGER:
       case UserRole.AREA_ADMIN:
         return [
-          {
-            label: "Colliery Cockpit",
-            href: "/overview",
-            icon: LayoutDashboard,
-            badge: "Live Gauges",
-          },
-          {
-            label: "Workforce & Biometrics",
-            href: "/attendance",
-            icon: Users,
-            badge: "Telemetry",
-          },
-          {
-            label: "AI Safety Risk Analysis",
-            href: "/analytics",
-            icon: BarChart3,
-            badge: "4-Pillar",
-          },
-          {
-            label: "Data Logs",
-            href: "/data-logs",
-            icon: FolderLock,
-            badge: "Immutable",
-          },
-          {
-            label: "CAPA Remediation Board",
-            href: "/capa",
-            icon: KanbanSquare,
-            badge: "Directives",
-          },
-          {
-            label: "Leasehold & Gallery Map",
-            href: "/map",
-            icon: Map,
-            badge: "ESRI Sat",
-          },
+          { label: "Colliery Cockpit", href: "/overview", icon: LayoutDashboard, badge: "Live" },
+          { label: "AI Safety Analytics", href: "/analytics", icon: BarChart3, badge: "4-Pillar" },
+          { label: "Immutable Data Logs", href: "/data-logs", icon: FolderLock, badge: "Audit" },
+          { label: "CAPA Remediation", href: "/capa", icon: KanbanSquare, badge: "Action" },
+          { label: "Worker Biometrics", href: "/attendance", icon: Users, badge: "Muster" },
+          { label: "Cryptographic Ledger", href: "/audit-ledger", icon: FileKey2, badge: "SHA-256" },
+          { label: "Underground GIS", href: "/map", icon: Map, badge: "Gallery" },
         ];
 
       case UserRole.MINISTRY_AUDITOR:
         return [
-          {
-            label: "Executive Scorecard",
-            href: "/overview",
-            icon: LayoutDashboard,
-            badge: "Macro",
-          },
-          {
-            label: "Cryptographic Audit Ledger",
-            href: "/audit-ledger",
-            icon: FileKey2,
-            badge: "SHA-256",
-          },
-          {
-            label: "AI Governance Analytics",
-            href: "/analytics",
-            icon: BarChart3,
-            badge: "Trends",
-          },
-          {
-            label: "Statutory Clearances",
-            href: "/compliance",
-            icon: FileCheck2,
-            badge: "Certificates",
-          },
-          {
-            label: "Multi-Mine Telangana GIS",
-            href: "/map",
-            icon: Map,
-            badge: "Sat/Vector",
-          },
+          { label: "Executive Scorecard", href: "/overview", icon: LayoutDashboard, badge: "National" },
+          { label: "Cryptographic Ledger", href: "/audit-ledger", icon: FileKey2, badge: "SHA-256" },
+          { label: "AI Hazard Forecasting", href: "/analytics", icon: BarChart3, badge: "72h" },
+          { label: "Statutory Clearances", href: "/compliance", icon: FileCheck2, badge: "DGMS" },
+          { label: "CAPA Governance", href: "/capa", icon: KanbanSquare },
+          { label: "Pan-India GIS Map", href: "/map", icon: Map, badge: "Basins" },
+          { label: "Immutable Logs", href: "/data-logs", icon: FolderLock },
         ];
 
       case UserRole.MINING_SIRDAR:
       case UserRole.FIELD_WORKER:
       default:
         return [
-          {
-            label: "Worker Shift Cockpit",
-            href: "/overview",
-            icon: LayoutDashboard,
-            badge: "Live CH4/CO",
-          },
-          {
-            label: "Report Issue / Hazard",
-            href: "/worker/issues",
-            icon: AlertTriangle,
-            badge: "Portal",
-          },
-          {
-            label: "Biometric Shift Muster",
-            href: "/attendance",
-            icon: Users,
-            badge: "Muster",
-          },
-          {
-            label: "Underground Gallery Map",
-            href: "/map",
-            icon: Map,
-            badge: "Stations",
-          },
+          { label: "Worker Shift Cockpit", href: "/overview", icon: LayoutDashboard, badge: "Telemetry" },
+          { label: "Report Pit Hazard", href: "/worker/issues", icon: ShieldAlert, badge: "Urgent" },
+          { label: "Biometric Shift Muster", href: "/attendance", icon: Users, badge: "Muster" },
+          { label: "Gallery Incline Map", href: "/map", icon: Map, badge: "Stations" },
+          { label: "Notifications", href: "/notifications", icon: Bell },
         ];
     }
   };
@@ -230,85 +121,105 @@ export function AppSidebar() {
   const currentRole = mounted ? userRole : UserRole.MINISTRY_AUDITOR;
   const navItems = getNavItemsForRole(currentRole);
 
-  const getRoleBadge = (role: UserRole) => {
-    switch (role) {
-      case UserRole.CONTRACTOR_ADMIN:
-        return { label: "Contractor Portal", color: "bg-purple-500/20 text-purple-300 border-purple-500/30" };
-      case UserRole.DGMS_INSPECTOR:
-      case UserRole.REGULATORY_OFFICER:
-        return { label: "DGMS Inspector", color: "bg-sky-500/20 text-sky-300 border-sky-500/30" };
-      case UserRole.COLLIERY_MANAGER:
-      case UserRole.AREA_ADMIN:
-        return { label: "Colliery Manager", color: "bg-amber-500/20 text-amber-300 border-amber-500/30" };
-      case UserRole.MINISTRY_AUDITOR:
-        return { label: "Ministry Auditor", color: "bg-emerald-500/20 text-emerald-300 border-emerald-500/30" };
-      default:
-        return { label: "Mining Sirdar", color: "bg-indigo-500/20 text-indigo-300 border-indigo-500/30" };
-    }
-  };
-
-  const roleBadge = getRoleBadge(currentRole);
-
   return (
-    <aside className="w-64 bg-slate-950 border-r border-slate-800 flex flex-col justify-between shrink-0 min-h-screen">
+    <aside
+      className={`bg-[#080D16] border-r border-white/10 flex flex-col justify-between shrink-0 min-h-screen transition-all duration-300 relative z-30 ${
+        isCollapsed ? "w-16" : "w-60"
+      }`}
+    >
       <div>
-        {/* Ministry Brand Header */}
-        <Link
-          href="/overview"
-          className="h-16 border-b border-slate-800 flex items-center px-5 gap-3 bg-slate-900/40 hover:bg-slate-900/80 transition-colors cursor-pointer group"
-          title="Go to Dashboard Cockpit"
-        >
-          <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-emerald-600 to-teal-400 flex items-center justify-center text-slate-950 shadow-md shadow-emerald-950 group-hover:scale-105 transition-transform">
-            <HardHat className="w-5 h-5 stroke-[2.5]" />
-          </div>
-          <div>
-            <div className="font-extrabold text-slate-100 text-sm tracking-tight leading-tight group-hover:text-emerald-300 transition-colors">
-              COAL GOV AI
-            </div>
-            <div className="text-[10px] text-emerald-400 font-semibold tracking-wider uppercase">
-              SIH26024 • MoC Portal
-            </div>
-          </div>
-        </Link>
+        {/* Sidebar Brand Header & Toggle */}
+        <div className="h-16 border-b border-white/10 flex items-center justify-between px-3.5 bg-black/20">
+          {!isCollapsed && (
+            <Link href="/overview" className="flex items-center gap-2.5 overflow-hidden">
+              <div className="w-8 h-8 rounded-lg bg-gradient-to-tr from-[#00C896] to-[#28B9C7] flex items-center justify-center text-[#050A12] shadow-md shadow-[#00C896]/20 shrink-0">
+                <HardHat className="w-4 h-4 stroke-[2.5]" />
+              </div>
+              <div className="truncate">
+                <span className="font-display font-extrabold text-xs tracking-tight text-white block">
+                  COMMAND NAV
+                </span>
+                <span className="text-[9px] font-mono text-[#00C896] tracking-wider block">
+                  DGMS / MOC SECURE
+                </span>
+              </div>
+            </Link>
+          )}
 
-        {/* User Role Indicator Banner */}
-        <div className="px-4 pt-3 pb-1">
-          <div className={`px-2.5 py-1.5 rounded-xl border text-xs font-medium flex items-center justify-between ${roleBadge.color}`}>
-            <span className="font-bold truncate">{roleBadge.label}</span>
-            <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse shrink-0 ml-2" />
-          </div>
+          {isCollapsed && (
+            <div className="mx-auto">
+              <div className="w-8 h-8 rounded-lg bg-gradient-to-tr from-[#00C896] to-[#28B9C7] flex items-center justify-center text-[#050A12] shadow-md shadow-[#00C896]/20">
+                <HardHat className="w-4 h-4 stroke-[2.5]" />
+              </div>
+            </div>
+          )}
+
+          {/* Collapse / Expand Toggle Button */}
+          <button
+            onClick={toggleCollapsed}
+            className={`p-1.5 rounded-lg bg-white/5 hover:bg-white/10 text-slate-400 hover:text-white transition-colors ${
+              isCollapsed ? "hidden" : "block"
+            }`}
+            title={isCollapsed ? "Expand Sidebar" : "Collapse Sidebar"}
+          >
+            <ChevronLeft className="w-4 h-4" />
+          </button>
         </div>
 
-        {/* Dynamic Navigation Links */}
-        <nav className="p-3 space-y-1">
+        {/* Collapsed Expand Quick Action */}
+        {isCollapsed && (
+          <div className="p-2 border-b border-white/5 flex justify-center">
+            <button
+              onClick={toggleCollapsed}
+              className="p-1.5 rounded-lg bg-white/5 hover:bg-[#00C896]/20 text-slate-400 hover:text-[#00C896] transition-colors"
+              title="Expand Sidebar"
+            >
+              <ChevronRight className="w-4 h-4" />
+            </button>
+          </div>
+        )}
+
+        {/* Navigation Items */}
+        <nav className="p-2 space-y-1 mt-2">
           {navItems.map((item) => {
             const Icon = item.icon;
-            const isActive = pathname === item.href || (item.href !== "/overview" && pathname.startsWith(item.href));
+            const isActive =
+              pathname === item.href ||
+              (item.href !== "/overview" && pathname.startsWith(item.href));
 
             return (
               <Link
                 key={item.href}
                 href={item.href}
-                className={`flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-semibold transition-all group ${
+                title={isCollapsed ? item.label : undefined}
+                className={`relative flex items-center rounded-xl text-xs font-semibold transition-all group ${
+                  isCollapsed ? "justify-center p-3" : "justify-between px-3 py-2.5"
+                } ${
                   isActive
-                    ? "bg-purple-500/15 text-purple-300 border border-purple-500/30 shadow-sm shadow-purple-950"
-                    : "text-slate-400 hover:text-slate-200 hover:bg-slate-900"
+                    ? "bg-[#00C896]/15 text-[#00C896] border border-[#00C896]/30 shadow-md shadow-[#00C896]/5 font-bold"
+                    : "text-slate-400 hover:text-white hover:bg-white/5"
                 }`}
               >
+                {/* Active Green Indicator Line */}
+                {isActive && (
+                  <span className="absolute left-0 top-1.5 bottom-1.5 w-1 bg-[#00C896] rounded-r" />
+                )}
+
                 <div className="flex items-center gap-3">
                   <Icon
-                    className={`w-4 h-4 transition-colors ${
-                      isActive ? "text-purple-400" : "text-slate-400 group-hover:text-slate-200"
+                    className={`w-4 h-4 shrink-0 transition-colors ${
+                      isActive ? "text-[#00C896]" : "text-slate-400 group-hover:text-white"
                     }`}
                   />
-                  <span>{item.label}</span>
+                  {!isCollapsed && <span className="truncate">{item.label}</span>}
                 </div>
-                {item.badge && (
+
+                {!isCollapsed && item.badge && (
                   <span
                     className={`text-[9px] font-mono px-1.5 py-0.5 rounded border uppercase tracking-wider ${
                       isActive
-                        ? "bg-purple-500/20 text-purple-300 border-purple-500/30"
-                        : "bg-slate-900 text-slate-400 border-slate-800"
+                        ? "bg-[#00C896]/20 text-[#00C896] border-[#00C896]/40"
+                        : "bg-black/40 text-slate-500 border-white/5"
                     }`}
                   >
                     {item.badge}
@@ -320,17 +231,23 @@ export function AppSidebar() {
         </nav>
       </div>
 
-      {/* System Integrity Badge in Footer */}
-      <div className="p-4 border-t border-slate-800/80 bg-slate-900/30">
-        <div className="p-3 rounded-xl border border-slate-800 bg-slate-950/70 text-xs space-y-1.5">
-          <div className="flex items-center gap-1.5 text-emerald-400 font-semibold text-[11px]">
-            <ShieldCheck className="w-3.5 h-3.5" />
-            <span>FastAPI • MongoDB Connected</span>
+      {/* Footer: Statutory Status & Ledger Check */}
+      <div className="p-3 border-t border-white/10 bg-black/20">
+        {!isCollapsed ? (
+          <div className="p-2.5 rounded-xl bg-[#050A12] border border-white/5 space-y-1 font-mono text-[10px]">
+            <div className="flex items-center gap-1.5 text-[#00C896] font-bold">
+              <ShieldCheck className="w-3.5 h-3.5 shrink-0" />
+              <span>CMR 2017 ACTIVE</span>
+            </div>
+            <p className="text-slate-400 text-[9px] leading-tight">
+              SHA-256 cryptographic watchdog and statutory tripwires enabled.
+            </p>
           </div>
-          <p className="text-[10px] text-slate-400 leading-relaxed">
-            Role-gated authorization and SHA-256 tamper watchdog active.
-          </p>
-        </div>
+        ) : (
+          <div className="flex justify-center" title="CMR 2017 Compliance Watchdog Active">
+            <span className="w-2.5 h-2.5 rounded-full bg-[#00C896] animate-pulse" />
+          </div>
+        )}
       </div>
     </aside>
   );

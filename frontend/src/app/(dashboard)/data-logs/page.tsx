@@ -22,22 +22,18 @@ import {
   AlertTriangle,
   FileCheck2,
   RefreshCw,
-  Download,
   Search,
   Lock,
-  ArrowUpRight,
-  Clock,
-  Gauge,
   Wind,
-  Thermometer,
   Truck,
   CheckCircle2,
   XCircle,
-  AlertCircle,
   Fingerprint,
   X,
+  ArrowRight,
 } from "lucide-react";
 import Link from "next/link";
+import { TechnicalPanel, CommandMetric, StatutoryBadge } from "@/components/design-system";
 
 type TabType = "atmospheric" | "workers" | "mine_casts";
 
@@ -78,7 +74,7 @@ export default function DataLogsPage() {
   });
 
   const collieryTitle = mounted
-    ? (selectedMine?.name || activeMineName || "Godavarikhani No. 11A Incline (SCCL)")
+    ? selectedMine?.name || activeMineName || "Godavarikhani No. 11A Incline (SCCL)"
     : "Godavarikhani No. 11A Incline (SCCL)";
 
   const handleTamperAttempt = async () => {
@@ -95,7 +91,7 @@ export default function DataLogsPage() {
       );
       setTamperResult(res.error || res.data);
     } catch (err: any) {
-      setTamperResult({ message: err.message || "Mutation rejected by statutory immutable guard." });
+      setTamperResult({ message: err.message || "Mutation rejected by statutory immutable guard (HTTP 403 Forbidden)." });
     } finally {
       setIsTampering(false);
     }
@@ -103,605 +99,366 @@ export default function DataLogsPage() {
 
   return (
     <div className="space-y-6 pb-12">
-      {/* Header Banner */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 p-6 rounded-3xl bg-gradient-to-r from-slate-900 via-slate-900 to-blue-950/40 border border-slate-800 shadow-2xl">
-        <div>
-          <div className="flex items-center gap-2 mb-2">
-            <span className="text-[11px] font-mono font-bold text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-2.5 py-1 rounded-full flex items-center gap-1.5">
-              <Lock className="w-3.5 h-3.5" /> Immutable Statutory Vault (CMR 2017)
-            </span>
-            <span className="text-[11px] font-mono text-slate-400 bg-slate-800/80 px-2 py-0.5 rounded">
-              SHA-256 Verified
-            </span>
+      {/* ── HERO BANNER ──────────────────────────────────────────────────── */}
+      <div className="p-6 rounded-2xl bg-[#111827] border border-white/10 relative overflow-hidden shadow-2xl corner-ticks">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div>
+            <div className="inline-flex items-center gap-2 px-2.5 py-1 rounded-md bg-[#00C896]/10 border border-[#00C896]/30 text-[10px] font-mono text-[#00C896] uppercase tracking-wider mb-2">
+              <Lock className="w-3.5 h-3.5" />
+              IMMUTABLE STATUTORY VAULT &bull; CMR 2017 REGULATION 153
+            </div>
+            <h1 className="text-2xl md:text-3xl font-black text-white font-display tracking-tight">
+              Colliery Shift Data Logs
+            </h1>
+            <p className="text-xs text-slate-300 mt-1">
+              Raw time-series telemetry, biometric muster &amp; extraction logs for{" "}
+              <strong className="text-[#00C896] font-mono">{collieryTitle}</strong>.
+            </p>
           </div>
-          <h1 className="text-2xl sm:text-3xl font-black text-slate-100 tracking-tight">
-            Colliery Shift Data Logs
-          </h1>
-          <p className="text-xs sm:text-sm text-slate-400 mt-1">
-            Raw time-series telemetry & operational records for <span className="text-slate-200 font-semibold">{collieryTitle}</span>.
-          </p>
-        </div>
 
-        <div className="flex items-center gap-3">
-          <button
-            onClick={() => {
-              atmosphericQuery.refetch();
-              workersQuery.refetch();
-              castsQuery.refetch();
-            }}
-            className="px-3.5 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold flex items-center gap-2 border border-slate-700 transition-all"
-          >
-            <RefreshCw className="w-3.5 h-3.5" /> Refresh
-          </button>
-          <Link
-            href="/audit-ledger"
-            className="px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold flex items-center gap-2 shadow-lg shadow-blue-950 transition-all"
-          >
-            <ShieldCheck className="w-4 h-4" /> Audit Ledger
-          </Link>
+          <div className="flex items-center gap-3">
+            <button
+              onClick={() => {
+                atmosphericQuery.refetch();
+                workersQuery.refetch();
+                castsQuery.refetch();
+              }}
+              className="px-3.5 py-2 rounded-xl bg-[#080D16] hover:bg-black/50 border border-white/10 text-slate-300 text-xs font-mono font-bold flex items-center gap-2 transition-all"
+            >
+              <RefreshCw className="w-3.5 h-3.5 text-[#00C896]" /> Refresh
+            </button>
+            <Link
+              href="/audit-ledger"
+              className="px-4 py-2 rounded-xl bg-[#00C896] hover:bg-[#08B98A] text-[#050A12] text-xs font-bold font-display flex items-center gap-2 shadow-lg shadow-[#00C896]/20 transition-all"
+            >
+              <ShieldCheck className="w-4 h-4" /> Audit Ledger
+            </Link>
+          </div>
         </div>
       </div>
 
-      {/* KPI Overview Pills */}
+      {/* ── KPI OVERVIEW ─────────────────────────────────────────────────── */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <div className="p-4 rounded-2xl bg-slate-900/90 border border-slate-800 flex items-center gap-4">
-          <div className="w-12 h-12 rounded-xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-center text-blue-400">
-            <Flame className="w-6 h-6" />
-          </div>
-          <div>
-            <div className="text-[11px] font-semibold text-slate-400">Telemetry Stream Baseline</div>
-            <div className="text-xl font-black text-slate-100 font-mono mt-0.5">
-              {atmosphericQuery.data?.length ?? 6} Active Stations
-            </div>
-            <div className="text-[10px] text-emerald-400 font-mono">100% Cryptographic Intact</div>
-          </div>
-        </div>
-
-        <div className="p-4 rounded-2xl bg-slate-900/90 border border-slate-800 flex items-center gap-4">
-          <div className="w-12 h-12 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400">
-            <Users className="w-6 h-6" />
-          </div>
-          <div>
-            <div className="text-[11px] font-semibold text-slate-400">Underground Shift Muster</div>
-            <div className="text-xl font-black text-slate-100 font-mono mt-0.5">
-              {workersQuery.data?.length ?? 6} Registered Personnel
-            </div>
-            <div className="text-[10px] text-emerald-400 font-mono">Biometric RFID Scanned</div>
-          </div>
-        </div>
-
-        <div className="p-4 rounded-2xl bg-slate-900/90 border border-slate-800 flex items-center gap-4">
-          <div className="w-12 h-12 rounded-xl bg-purple-500/10 border border-purple-500/20 flex items-center justify-center text-purple-400">
-            <Pickaxe className="w-6 h-6" />
-          </div>
-          <div>
-            <div className="text-[11px] font-semibold text-slate-400">Daily Opencast Extraction</div>
-            <div className="text-xl font-black text-slate-100 font-mono mt-0.5">
-              8,990 MT Dispatched
-            </div>
-            <div className="text-[10px] text-purple-400 font-mono">5 Benches Operational</div>
-          </div>
-        </div>
+        <CommandMetric
+          label="Telemetry Stream Baseline"
+          value={`${atmosphericQuery.data?.length ?? 6} Stations`}
+          subtext="100% Cryptographic Intact"
+          icon={Flame}
+          status="normal"
+        />
+        <CommandMetric
+          label="Underground Shift Muster"
+          value={`${workersQuery.data?.length ?? 6} Crew`}
+          subtext="Biometric RFID & Overtime Monitored"
+          icon={Users}
+          status="normal"
+        />
+        <CommandMetric
+          label="Daily Extraction Dispatched"
+          value="8,990 MT"
+          subtext="5 Benches Operational"
+          icon={Pickaxe}
+          status="info"
+        />
       </div>
 
-      {/* Tabs Navigation & Search Bar */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-800 pb-3">
-        <div className="flex items-center gap-2 p-1 rounded-2xl bg-slate-900 border border-slate-800 max-w-fit">
+      {/* ── TRIPLE TABS NAVIGATION & SEARCH ───────────────────────────────── */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-white/10 pb-3">
+        <div className="flex items-center gap-2 p-1 rounded-xl bg-[#080D16] border border-white/10 max-w-fit">
           <button
             onClick={() => setActiveTab("atmospheric")}
-            className={`px-4 py-2 rounded-xl text-xs font-bold flex items-center gap-2 transition-all ${
+            className={`px-4 py-2 rounded-lg text-xs font-bold font-display transition-all flex items-center gap-2 ${
               activeTab === "atmospheric"
-                ? "bg-blue-600 text-white shadow-lg shadow-blue-950"
-                : "text-slate-400 hover:text-slate-200 hover:bg-slate-800/50"
+                ? "bg-[#00C896] text-[#050A12] shadow-md shadow-[#00C896]/20 font-extrabold"
+                : "text-slate-400 hover:text-white"
             }`}
           >
-            <Flame className="w-4 h-4" />
-            <span>Tab 1: Atmospheric Configuration</span>
+            <Flame className="w-3.5 h-3.5" />
+            <span>Tab 1: Atmospheric Telemetry</span>
           </button>
 
           <button
             onClick={() => setActiveTab("workers")}
-            className={`px-4 py-2 rounded-xl text-xs font-bold flex items-center gap-2 transition-all ${
+            className={`px-4 py-2 rounded-lg text-xs font-bold font-display transition-all flex items-center gap-2 ${
               activeTab === "workers"
-                ? "bg-emerald-600 text-white shadow-lg shadow-emerald-950"
-                : "text-slate-400 hover:text-slate-200 hover:bg-slate-800/50"
+                ? "bg-[#28B9C7] text-[#050A12] shadow-md shadow-[#28B9C7]/20 font-extrabold"
+                : "text-slate-400 hover:text-white"
             }`}
           >
-            <Users className="w-4 h-4" />
+            <Users className="w-3.5 h-3.5" />
             <span>Tab 2: Worker Muster</span>
           </button>
 
           <button
             onClick={() => setActiveTab("mine_casts")}
-            className={`px-4 py-2 rounded-xl text-xs font-bold flex items-center gap-2 transition-all ${
+            className={`px-4 py-2 rounded-lg text-xs font-bold font-display transition-all flex items-center gap-2 ${
               activeTab === "mine_casts"
-                ? "bg-purple-600 text-white shadow-lg shadow-purple-950"
-                : "text-slate-400 hover:text-slate-200 hover:bg-slate-800/50"
+                ? "bg-[#F5B51B] text-[#050A12] shadow-md shadow-[#F5B51B]/20 font-extrabold"
+                : "text-slate-400 hover:text-white"
             }`}
           >
-            <Pickaxe className="w-4 h-4" />
-            <span>Tab 3: Mine Casts & Extraction</span>
+            <Pickaxe className="w-3.5 h-3.5" />
+            <span>Tab 3: Mine Extraction Casts</span>
           </button>
         </div>
 
         <div className="relative w-full sm:w-64">
-          <Search className="w-4 h-4 text-slate-500 absolute left-3.5 top-1/2 -translate-y-1/2" />
+          <Search className="w-3.5 h-3.5 text-slate-500 absolute left-3 top-1/2 -translate-y-1/2" />
           <input
             type="text"
             placeholder="Search records, stations, hashes..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full pl-9 pr-3 py-2 bg-slate-900 border border-slate-800 rounded-xl text-xs text-slate-200 placeholder-slate-500 focus:outline-none focus:border-blue-500/50 transition-all font-mono"
+            className="w-full pl-8 pr-3 py-1.5 bg-[#080D16] border border-white/10 rounded-lg text-xs text-white placeholder-slate-500 focus:border-[#00C896] font-mono"
           />
         </div>
       </div>
 
-      {/* Tab 1: Atmospheric Configuration */}
+      {/* ── TAB 1: ATMOSPHERIC CONFIGURATION ──────────────────────────────── */}
       {activeTab === "atmospheric" && (
-        <div className="bg-slate-900 border border-slate-800 rounded-3xl shadow-xl overflow-hidden">
-          <div className="p-4 border-b border-slate-800 flex items-center justify-between bg-slate-950/40">
-            <div className="flex items-center gap-2">
-              <Flame className="w-4 h-4 text-blue-400" />
-              <span className="text-xs font-bold text-slate-200">
-                Continuous Underground Gas Sensor Readings (CMR 2017 Reg 153)
-              </span>
-            </div>
-            <span className="text-[11px] font-mono text-slate-400">
-              Auto-streamed from Pit Telemetry Network
-            </span>
-          </div>
-
+        <TechnicalPanel
+          title="Continuous Underground Gas Sensor Readings (CMR 2017 Reg 153)"
+          badge="AUTO-STREAMED TELEMETRY"
+          cornerTicks
+        >
           <div className="overflow-x-auto">
-            <table className="w-full text-left text-xs">
-              <thead className="bg-slate-950/80 text-slate-400 uppercase font-mono text-[10px] tracking-wider border-b border-slate-800">
+            <table className="w-full text-left font-mono text-xs">
+              <thead className="bg-[#080D16] text-slate-400 uppercase text-[10px] border-b border-white/5">
                 <tr>
-                  <th className="py-3.5 px-4 font-semibold">Station / Location</th>
-                  <th className="py-3.5 px-4 font-semibold">CH4 (Methane)</th>
-                  <th className="py-3.5 px-4 font-semibold">CO (PPM)</th>
-                  <th className="py-3.5 px-4 font-semibold">O2 %</th>
-                  <th className="py-3.5 px-4 font-semibold">Velocity &amp; Temp</th>
-                  <th className="py-3.5 px-4 font-semibold">Status Badge</th>
-                  <th className="py-3.5 px-4 font-semibold">Immutable SHA-256 Hash</th>
-                  <th className="py-3.5 px-4 font-semibold text-right text-sky-400">STATUTORY ACTION</th>
+                  <th className="p-3">Station / Location</th>
+                  <th className="p-3">CH₄ (Methane)</th>
+                  <th className="p-3">CO (PPM)</th>
+                  <th className="p-3">O₂ (%)</th>
+                  <th className="p-3">Air Velocity</th>
+                  <th className="p-3">Air Temp</th>
+                  <th className="p-3">SHA-256 Fingerprint</th>
+                  <th className="p-3">Statutory Status</th>
+                  <th className="p-3 text-right">Tamper Test</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-800/60 font-mono">
-                {atmosphericQuery.data
-                  ?.filter(
-                    (row) =>
-                      row.station_code.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                      row.location_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                      row.record_hash.toLowerCase().includes(searchTerm.toLowerCase())
-                  )
-                  .map((row) => (
-                    <tr key={row.id} className="hover:bg-slate-800/40 transition-colors">
-                      <td className="py-3.5 px-4">
-                        <div className="font-bold text-slate-200 font-sans text-xs">{row.location_name}</div>
-                        <span className="text-[10px] text-blue-400 font-mono">{row.station_code}</span>
-                      </td>
-
-                      <td className="py-3.5 px-4">
-                        <span
-                          className={`font-bold ${
-                            row.ch4_pct >= 0.75
-                              ? "text-rose-400 font-black"
-                              : row.ch4_pct >= 0.5
-                              ? "text-amber-400"
-                              : "text-slate-200"
-                          }`}
-                        >
-                          {row.ch4_pct}%
-                        </span>
-                        <span className="text-[10px] text-slate-500 block">CMR Limit: 0.75%</span>
-                      </td>
-
-                      <td className="py-3.5 px-4">
-                        <span
-                          className={`font-bold ${
-                            row.co_ppm >= 50
-                              ? "text-rose-400 font-black"
-                              : row.co_ppm >= 15
-                              ? "text-amber-400"
-                              : "text-slate-200"
-                          }`}
-                        >
-                          {row.co_ppm} ppm
-                        </span>
-                        <span className="text-[10px] text-slate-500 block">CMR Limit: 50 ppm</span>
-                      </td>
-
-                      <td className="py-3.5 px-4 text-slate-300">
-                        {row.o2_pct}%
-                      </td>
-
-                      <td className="py-3.5 px-4 text-slate-400">
-                        <div>{row.velocity_ms} m/s</div>
-                        <div className="text-[10px] text-slate-500">{row.temp_c}°C</div>
-                      </td>
-
-                      <td className="py-3.5 px-4">
-                        <span
-                          className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
-                            row.status === "STATUTORY_BREACH"
-                              ? "bg-rose-500/20 text-rose-400 border border-rose-500/30"
-                              : row.status === "EXCURSION_WARNING"
-                              ? "bg-amber-500/20 text-amber-400 border border-amber-500/30"
-                              : "bg-emerald-500/20 text-emerald-400 border border-emerald-500/30"
-                          }`}
-                        >
-                          {row.status}
-                        </span>
-                      </td>
-
-                      <td className="py-3.5 px-4">
-                        <div className="flex items-center gap-1.5 bg-slate-950 px-2 py-1 rounded border border-slate-800 max-w-fit">
-                          <Lock className="w-3 h-3 text-emerald-400 shrink-0" />
-                          <span className="text-[10px] text-slate-400 font-mono">
-                            SHA-256: [{row.record_hash.slice(0, 8)}...{row.record_hash.slice(-6)}]
-                          </span>
-                        </div>
-                      </td>
-
-                      <td className="py-3.5 px-4 text-right">
-                        <button
-                          onClick={() => {
-                            setSelectedLogForTamper(row);
-                            setEditValue(String(row.co_ppm));
-                            setTamperResult(null);
-                          }}
-                          className="px-4 py-1.5 rounded-xl bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 border border-rose-500/30 text-xs font-bold transition-all shadow-sm active:scale-95"
-                          title="Edit record"
-                        >
-                          Edit
-                        </button>
-                      </td>
-                    </tr>
-                  ))}
+              <tbody className="divide-y divide-white/5 text-slate-300">
+                {(atmosphericQuery.data || []).map((row) => (
+                  <tr key={row.id} className="hover:bg-white/5 transition-colors">
+                    <td className="p-3 font-bold text-white">
+                      <div>{row.station_code}</div>
+                      <div className="text-[10px] text-slate-500">{row.location_name}</div>
+                    </td>
+                    <td className="p-3">
+                      <span className={row.ch4_pct >= 0.75 ? "text-[#FF5C68] font-bold" : "text-[#00C896]"}>
+                        {row.ch4_pct}%
+                      </span>
+                    </td>
+                    <td className="p-3">
+                      <span className={row.co_ppm >= 25 ? "text-[#F5B51B] font-bold" : "text-white"}>
+                        {row.co_ppm} ppm
+                      </span>
+                    </td>
+                    <td className="p-3 text-slate-300">{row.o2_pct}%</td>
+                    <td className="p-3 text-[#28B9C7]">{row.velocity_ms} m/s</td>
+                    <td className="p-3 text-slate-300">{row.temp_c}°C</td>
+                    <td className="p-3 text-slate-400 text-[10px]">
+                      <span className="font-mono bg-black/40 px-1.5 py-0.5 rounded border border-white/5">
+                        {row.record_hash?.substring(0, 12)}...
+                      </span>
+                    </td>
+                    <td className="p-3">
+                      <StatutoryBadge
+                        status={
+                          row.status === "STATUTORY_BREACH"
+                            ? "CRITICAL"
+                            : row.status === "EXCURSION_WARNING"
+                            ? "ATTENTION"
+                            : "COMPLIANT"
+                        }
+                        label={row.status}
+                      />
+                    </td>
+                    <td className="p-3 text-right">
+                      <button
+                        onClick={() => {
+                          setSelectedLogForTamper(row);
+                          setTamperResult(null);
+                        }}
+                        className="px-2.5 py-1 rounded bg-[#FF5C68]/15 hover:bg-[#FF5C68]/25 text-[#FF5C68] border border-[#FF5C68]/30 text-[10px] font-bold transition-all"
+                      >
+                        Edit (Test 403)
+                      </button>
+                    </td>
+                  </tr>
+                ))}
               </tbody>
             </table>
           </div>
-        </div>
+        </TechnicalPanel>
       )}
 
-      {/* Tab 2: Worker Muster */}
+      {/* ── TAB 2: WORKER MUSTER ─────────────────────────────────────────── */}
       {activeTab === "workers" && (
-        <div className="bg-slate-900 border border-slate-800 rounded-3xl shadow-xl overflow-hidden">
-          <div className="p-4 border-b border-slate-800 flex items-center justify-between bg-slate-950/40">
-            <div className="flex items-center gap-2">
-              <Users className="w-4 h-4 text-emerald-400" />
-              <span className="text-xs font-bold text-slate-200">
-                Statutory Biometric Shift Attendance & Gallery Deployment
-              </span>
-            </div>
-            <span className="text-[11px] font-mono text-slate-400">
-              Mines Act 1952 Sec 48 Shift Register
-            </span>
-          </div>
-
+        <TechnicalPanel
+          title="Underground Worker Biometric Shift Muster & Gas Exposure"
+          badge="MINES ACT 1952"
+          cornerTicks
+        >
           <div className="overflow-x-auto">
-            <table className="w-full text-left text-xs">
-              <thead className="bg-slate-950/80 text-slate-400 uppercase font-mono text-[10px] tracking-wider border-b border-slate-800">
+            <table className="w-full text-left font-mono text-xs">
+              <thead className="bg-[#080D16] text-slate-400 uppercase text-[10px] border-b border-white/5">
                 <tr>
-                  <th className="py-3.5 px-4 font-semibold">Worker Details</th>
-                  <th className="py-3.5 px-4 font-semibold">Gallery Station</th>
-                  <th className="py-3.5 px-4 font-semibold">Shift &amp; In-Time</th>
-                  <th className="py-3.5 px-4 font-semibold">Duration &amp; Overtime</th>
-                  <th className="py-3.5 px-4 font-semibold">CO Exposure</th>
-                  <th className="py-3.5 px-4 font-semibold">Biometric Status</th>
-                  <th className="py-3.5 px-4 font-semibold">Immutable Record Hash</th>
+                  <th className="p-3">Worker ID &amp; Name</th>
+                  <th className="p-3">Shift</th>
+                  <th className="p-3">Incline Station</th>
+                  <th className="p-3">Check-in Time</th>
+                  <th className="p-3">Hours Logged</th>
+                  <th className="p-3">Gas Exposure</th>
+                  <th className="p-3">Compliance Status</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-800/60 font-mono">
-                {workersQuery.data
-                  ?.filter(
-                    (row) =>
-                      row.worker_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                      row.worker_id.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                      row.station_id.toLowerCase().includes(searchTerm.toLowerCase())
-                  )
-                  .map((row) => (
-                    <tr key={row.id} className="hover:bg-slate-800/40 transition-colors">
-                      <td className="py-3.5 px-4">
-                        <div className="font-bold text-slate-200 font-sans text-xs">{row.worker_name}</div>
-                        <div className="text-[10px] text-slate-400 flex items-center gap-2">
-                          <span className="text-emerald-400 font-mono">{row.worker_id}</span>
-                          <span>•</span>
-                          <span>{row.designation || "Mining Crew"}</span>
-                        </div>
-                      </td>
-
-                      <td className="py-3.5 px-4">
-                        <span className="text-blue-400 font-bold">{row.station_id}</span>
-                        <span className="text-[10px] text-slate-500 block">{row.zone_type}</span>
-                      </td>
-
-                      <td className="py-3.5 px-4">
-                        <span className="text-slate-200 font-bold">{row.shift}</span>
-                        <span className="text-[10px] text-slate-500 block">{row.check_in_time.slice(11, 19)} UTC</span>
-                      </td>
-
-                      <td className="py-3.5 px-4">
-                        <span className="text-slate-200 font-bold">{row.duration_hours} hrs</span>
-                        {row.is_overtime ? (
-                          <span className="text-[10px] bg-rose-500/20 text-rose-400 px-1.5 py-0.5 rounded font-bold block mt-0.5 max-w-fit border border-rose-500/30">
-                            Overtime &gt;8h Flagged
-                          </span>
-                        ) : (
-                          <span className="text-[10px] text-emerald-400 block mt-0.5">Standard Shift</span>
-                        )}
-                      </td>
-
-                      <td className="py-3.5 px-4">
-                        <span
-                          className={`font-bold ${
-                            row.gas_exposure_ppm > 15 ? "text-amber-400" : "text-emerald-400"
-                          }`}
-                        >
-                          {row.gas_exposure_ppm} ppm
-                        </span>
-                      </td>
-
-                      <td className="py-3.5 px-4">
-                        <span className="inline-flex items-center gap-1 text-[10px] text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded border border-emerald-500/20 font-bold">
-                          <Fingerprint className="w-3 h-3" /> VERIFIED
-                        </span>
-                      </td>
-
-                      <td className="py-3.5 px-4">
-                        <div className="flex items-center gap-1.5 bg-slate-950 px-2 py-1 rounded border border-slate-800 max-w-fit">
-                          <Lock className="w-3 h-3 text-emerald-400 shrink-0" />
-                          <span className="text-[10px] text-slate-400 font-mono">
-                            SHA-256: [{row.record_hash.slice(0, 8)}...{row.record_hash.slice(-6)}]
-                          </span>
-                        </div>
-                      </td>
-                    </tr>
-                  ))}
+              <tbody className="divide-y divide-white/5 text-slate-300">
+                {(workersQuery.data || []).map((w) => (
+                  <tr key={w.id} className="hover:bg-white/5 transition-colors">
+                    <td className="p-3 font-bold text-white">
+                      <div>{w.worker_name}</div>
+                      <div className="text-[10px] text-slate-400">{w.worker_id} &bull; {w.designation}</div>
+                    </td>
+                    <td className="p-3 text-slate-300">{w.shift}</td>
+                    <td className="p-3 text-slate-400">{w.station_id}</td>
+                    <td className="p-3 text-slate-300">
+                      {w.check_in_time ? new Date(w.check_in_time).toLocaleTimeString() : "-"}
+                    </td>
+                    <td className="p-3">
+                      <span className={w.duration_hours > 8.0 ? "text-[#FF5C68] font-bold" : "text-white"}>
+                        {w.duration_hours} hrs
+                      </span>
+                    </td>
+                    <td className="p-3 text-slate-300">{w.gas_exposure_ppm} ppm</td>
+                    <td className="p-3">
+                      <StatutoryBadge
+                        status={w.is_overtime ? "ATTENTION" : "COMPLIANT"}
+                        label={w.is_overtime ? "OVERTIME WARNING" : "NORMAL SHIFT"}
+                      />
+                    </td>
+                  </tr>
+                ))}
               </tbody>
             </table>
           </div>
-        </div>
+        </TechnicalPanel>
       )}
 
-      {/* Tab 3: Mine Casts & Extraction */}
+      {/* ── TAB 3: MINE EXTRACTION CASTS ─────────────────────────────────── */}
       {activeTab === "mine_casts" && (
-        <div className="bg-slate-900 border border-slate-800 rounded-3xl shadow-xl overflow-hidden">
-          <div className="p-4 border-b border-slate-800 flex items-center justify-between bg-slate-950/40">
-            <div className="flex items-center gap-2">
-              <Pickaxe className="w-4 h-4 text-purple-400" />
-              <span className="text-xs font-bold text-slate-200">
-                Opencast Bench Production, Dumper Dispatch & Blasting Clearance Registers
-              </span>
-            </div>
-            <span className="text-[11px] font-mono text-slate-400">
-              DGMS Circular 2 of 2010 Compliance
-            </span>
-          </div>
-
+        <TechnicalPanel
+          title="Opencast Bench Excavation & Dumper Dispatch Register"
+          badge="PRODUCTION CLEARANCE"
+          cornerTicks
+        >
           <div className="overflow-x-auto">
-            <table className="w-full text-left text-xs">
-              <thead className="bg-slate-950/80 text-slate-400 uppercase font-mono text-[10px] tracking-wider border-b border-slate-800">
+            <table className="w-full text-left font-mono text-xs">
+              <thead className="bg-[#080D16] text-slate-400 uppercase text-[10px] border-b border-white/5">
                 <tr>
-                  <th className="py-3.5 px-4 font-semibold">Bench / Location</th>
-                  <th className="py-3.5 px-4 font-semibold">Shift &amp; Date</th>
-                  <th className="py-3.5 px-4 font-semibold">Extracted Tonnage</th>
-                  <th className="py-3.5 px-4 font-semibold">Quota Target</th>
-                  <th className="py-3.5 px-4 font-semibold">Dumper Trips</th>
-                  <th className="py-3.5 px-4 font-semibold">Blasting Clearance</th>
-                  <th className="py-3.5 px-4 font-semibold">Clearance In-Charge</th>
-                  <th className="py-3.5 px-4 font-semibold">Immutable Hash</th>
+                  <th className="p-3">Bench ID &amp; Seam</th>
+                  <th className="p-3">Excavation (MT)</th>
+                  <th className="p-3">Target Quota %</th>
+                  <th className="p-3">Dumper Trips</th>
+                  <th className="p-3">Explosives (ANFO)</th>
+                  <th className="p-3">Blasting Clearance</th>
+                  <th className="p-3">SHA-256 Seal</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-800/60 font-mono">
-                {castsQuery.data
-                  ?.filter(
-                    (row) =>
-                      row.bench_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                      row.bench_id.toLowerCase().includes(searchTerm.toLowerCase())
-                  )
-                  .map((row) => (
-                    <tr key={row.id} className="hover:bg-slate-800/40 transition-colors">
-                      <td className="py-3.5 px-4">
-                        <div className="font-bold text-slate-200 font-sans text-xs">{row.bench_name}</div>
-                        <span className="text-[10px] text-purple-400 font-mono">{row.bench_id}</span>
-                      </td>
-
-                      <td className="py-3.5 px-4 text-slate-300">
-                        <div>{row.shift}</div>
-                        <div className="text-[10px] text-slate-500">{row.date}</div>
-                      </td>
-
-                      <td className="py-3.5 px-4">
-                        <span className="font-bold text-slate-100">{row.extraction_tonnage.toLocaleString()} MT</span>
-                        <span className="text-[10px] text-emerald-400 block">{row.quota_achievement_pct}% of quota</span>
-                      </td>
-
-                      <td className="py-3.5 px-4 text-slate-400">
-                        {row.target_quota_tonnage.toLocaleString()} MT
-                      </td>
-
-                      <td className="py-3.5 px-4 text-slate-300">
-                        <div className="flex items-center gap-1.5">
-                          <Truck className="w-3.5 h-3.5 text-blue-400" />
-                          <span>{row.dumper_trips_count} Trips</span>
-                        </div>
-                      </td>
-
-                      <td className="py-3.5 px-4">
-                        <span
-                          className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
-                            row.blasting_clearance_status === "CLEARED"
-                              ? "bg-emerald-500/20 text-emerald-400 border border-emerald-500/30"
-                              : row.blasting_clearance_status === "RESTRICTED"
-                              ? "bg-amber-500/20 text-amber-400 border border-amber-500/30"
-                              : "bg-rose-500/20 text-rose-400 border border-rose-500/30"
-                          }`}
-                        >
-                          {row.blasting_clearance_status}
-                        </span>
-                        {row.explosives_used_kg > 0 && (
-                          <span className="text-[9px] text-slate-500 block mt-0.5 font-mono">
-                            {row.explosives_used_kg} kg ANFO
-                          </span>
-                        )}
-                      </td>
-
-                      <td className="py-3.5 px-4 text-slate-300 font-sans text-xs">
-                        {row.clearance_engineer}
-                      </td>
-
-                      <td className="py-3.5 px-4">
-                        <div className="flex items-center gap-1.5 bg-slate-950 px-2 py-1 rounded border border-slate-800 max-w-fit">
-                          <Lock className="w-3 h-3 text-emerald-400 shrink-0" />
-                          <span className="text-[10px] text-slate-400 font-mono">
-                            SHA-256: [{row.record_hash.slice(0, 8)}...{row.record_hash.slice(-6)}]
-                          </span>
-                        </div>
-                      </td>
-                    </tr>
-                  ))}
+              <tbody className="divide-y divide-white/5 text-slate-300">
+                {(castsQuery.data || []).map((c) => (
+                  <tr key={c.id} className="hover:bg-white/5 transition-colors">
+                    <td className="p-3 font-bold text-white">
+                      <div>{c.bench_id}</div>
+                      <div className="text-[10px] text-slate-500">{c.bench_name}</div>
+                    </td>
+                    <td className="p-3 font-bold text-[#00C896]">{c.extraction_tonnage} MT</td>
+                    <td className="p-3 text-white">{c.quota_achievement_pct}%</td>
+                    <td className="p-3 text-slate-300">{c.dumper_trips_count} trips</td>
+                    <td className="p-3 text-slate-300">{c.explosives_used_kg} kg</td>
+                    <td className="p-3">
+                      <StatutoryBadge
+                        status={c.blasting_clearance_status === "CLEARED" ? "COMPLIANT" : "ATTENTION"}
+                        label={c.blasting_clearance_status}
+                      />
+                    </td>
+                    <td className="p-3 text-slate-400 text-[10px]">
+                      <span className="bg-black/40 px-1.5 py-0.5 rounded border border-white/5">
+                        {c.record_hash?.substring(0, 10)}...
+                      </span>
+                    </td>
+                  </tr>
+                ))}
               </tbody>
             </table>
           </div>
-        </div>
+        </TechnicalPanel>
       )}
 
-      {/* Edit Statutory Record Modal */}
+      {/* ── TAMPER ATTEMPT MODAL (DEMONSTRATING IMMUTABILITY & 403) ───────── */}
       {selectedLogForTamper && (
         <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-slate-900 border border-slate-800 rounded-3xl max-w-lg w-full p-6 shadow-2xl space-y-5 animate-in fade-in zoom-in duration-200">
-            {/* Modal Header */}
-            <div className="flex items-start justify-between">
-              <div>
-                <div className="flex items-center gap-2">
-                  <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-rose-500/20 text-rose-400 border border-rose-500/30">
-                    Statutory Telemetry
-                  </span>
-                  <span className="text-xs font-mono text-slate-400">
-                    {selectedLogForTamper.station_code}
-                  </span>
-                </div>
-                <h3 className="text-base font-bold text-slate-100 mt-1">
-                  Edit Statutory Sensor Record
+          <div className="bg-[#111827] border border-white/10 rounded-2xl max-w-md w-full p-6 space-y-4 shadow-2xl corner-ticks">
+            <div className="flex items-center justify-between pb-3 border-b border-white/10">
+              <div className="flex items-center gap-2">
+                <Lock className="w-5 h-5 text-[#FF5C68]" />
+                <h3 className="font-display font-bold text-white text-sm">
+                  Test Statutory Record Immutability
                 </h3>
-                <p className="text-xs text-slate-400">
-                  {selectedLogForTamper.location_name}
-                </p>
               </div>
               <button
                 onClick={() => setSelectedLogForTamper(null)}
-                className="p-1 rounded-xl text-slate-400 hover:text-slate-200 hover:bg-slate-800 transition-colors"
+                className="text-slate-400 hover:text-white"
               >
-                <X className="w-5 h-5" />
+                <X className="w-4 h-4" />
               </button>
             </div>
 
-            {/* Current Values Display */}
-            <div className="grid grid-cols-2 gap-3 bg-slate-950/60 p-3.5 rounded-2xl border border-slate-800/80 text-xs">
-              <div>
-                <span className="text-[10px] text-slate-500 font-mono block">CURRENT CO READING</span>
-                <span className="font-bold text-slate-200 font-mono text-sm">
-                  {selectedLogForTamper.co_ppm} ppm
-                </span>
-              </div>
-              <div>
-                <span className="text-[10px] text-slate-500 font-mono block">CH4 (METHANE)</span>
-                <span className="font-bold text-slate-200 font-mono text-sm">
-                  {selectedLogForTamper.ch4_pct}%
-                </span>
-              </div>
-              <div className="col-span-2 pt-2 border-t border-slate-800/50">
-                <span className="text-[10px] text-slate-500 font-mono block">IMMUTABLE SHA-256 HASH</span>
-                <span className="font-mono text-[10px] text-emerald-400 truncate block">
-                  {selectedLogForTamper.record_hash}
-                </span>
-              </div>
+            <p className="text-xs text-slate-300 leading-relaxed font-sans">
+              Attempting to retrospectively alter committed atmospheric records simulates a fraudulent database attack. The system will reject the update with <strong>HTTP 403 Forbidden</strong> and log an emergency tamper alert.
+            </p>
+
+            <div className="p-3 rounded-xl bg-[#080D16] border border-white/5 font-mono text-xs space-y-1.5">
+              <div className="text-slate-400">Station: {selectedLogForTamper.station_code}</div>
+              <div className="text-slate-400">Current CO: <strong className="text-white">{selectedLogForTamper.co_ppm} ppm</strong></div>
+              <div className="text-slate-400">Hash: <span className="text-[#00C896]">{selectedLogForTamper.record_hash?.substring(0, 20)}...</span></div>
             </div>
 
-            {/* Edit Field */}
-            <div className="space-y-2">
-              <label className="text-xs font-semibold text-slate-300 block">
-                Target Value (Carbon Monoxide - CO PPM)
+            <div>
+              <label className="text-[11px] font-mono text-slate-400 block mb-1">
+                Falsified Value to Inject (ppm):
               </label>
-              <div className="relative">
-                <input
-                  type="number"
-                  step="0.1"
-                  value={editValue}
-                  onChange={(e) => setEditValue(e.target.value)}
-                  placeholder="Enter new CO value (e.g. 12.0)"
-                  className="w-full px-3.5 py-2.5 bg-slate-950 border border-slate-700 rounded-xl text-xs font-mono text-slate-100 placeholder-slate-500 focus:outline-none focus:border-rose-500 transition-all"
-                />
-                <span className="absolute right-3.5 top-1/2 -translate-y-1/2 text-xs text-slate-500 font-mono">
-                  ppm
-                </span>
-              </div>
-              <p className="text-[11px] text-slate-400">
-                Attempting to overwrite sealed statutory telemetry will invoke the compliance interceptor.
-              </p>
+              <input
+                type="text"
+                value={editValue}
+                onChange={(e) => setEditValue(e.target.value)}
+                className="w-full p-2.5 rounded-xl bg-[#080D16] border border-white/10 text-white font-mono text-xs focus:border-[#FF5C68]"
+              />
             </div>
 
-            {/* Tamper Interception Result (if triggered) */}
             {tamperResult && (
-              <div className="p-4 rounded-2xl bg-rose-950/40 border border-rose-500/40 space-y-2 text-xs animate-in fade-in duration-150">
-                <div className="flex items-center gap-2 text-rose-400 font-bold">
-                  <AlertTriangle className="w-4 h-4 shrink-0 text-rose-400" />
-                  <span>Statutory Immutability Enforced (HTTP 403)</span>
-                </div>
-                <p className="text-slate-300 text-[11px] leading-relaxed">
-                  {tamperResult.message || (typeof tamperResult === "string" ? tamperResult : "Modification intercepted by immutable audit ledger.")}
-                </p>
-                {tamperResult.incident && (
-                  <div className="flex flex-wrap items-center gap-2 pt-1 font-mono text-[10px]">
-                    <span className="bg-rose-500/20 text-rose-300 px-2 py-0.5 rounded border border-rose-500/30 font-bold">
-                      Audit Block #{tamperResult.incident.audit_block_sequence}
-                    </span>
-                    <span className="bg-amber-500/20 text-amber-300 px-2 py-0.5 rounded border border-amber-500/30">
-                      Dispatched to DGMS &amp; Ministry
-                    </span>
-                  </div>
-                )}
-                <div className="pt-2">
-                  <Link
-                    href="/audit-ledger"
-                    className="inline-flex items-center gap-1.5 text-xs font-semibold text-rose-400 hover:text-rose-300 underline underline-offset-2"
-                  >
-                    <span>View Tamper Evidence in Audit Ledger</span>
-                    <ArrowUpRight className="w-3.5 h-3.5" />
-                  </Link>
-                </div>
+              <div className="p-3 rounded-xl bg-[#FF5C68]/15 border border-[#FF5C68]/30 text-[#FF5C68] font-mono text-xs">
+                {typeof tamperResult === "string" ? tamperResult : JSON.stringify(tamperResult)}
               </div>
             )}
 
-            {/* Modal Actions */}
-            <div className="flex items-center justify-end gap-3 pt-2">
+            <div className="flex justify-end gap-2 pt-2">
               <button
-                type="button"
                 onClick={() => setSelectedLogForTamper(null)}
-                className="px-4 py-2 rounded-xl text-xs font-semibold text-slate-400 hover:text-slate-200 hover:bg-slate-800 transition-colors"
+                className="px-4 py-2 rounded-xl bg-white/5 hover:bg-white/10 text-slate-300 text-xs font-mono"
               >
                 Close
               </button>
               <button
-                type="button"
                 onClick={handleTamperAttempt}
                 disabled={isTampering}
-                className="px-5 py-2 rounded-xl bg-rose-600 hover:bg-rose-500 disabled:opacity-50 text-white text-xs font-bold transition-all shadow-lg shadow-rose-950 flex items-center gap-2"
+                className="px-4 py-2 rounded-xl bg-[#FF5C68] hover:bg-rose-500 text-white font-bold text-xs flex items-center gap-1.5"
               >
-                {isTampering ? (
-                  <>
-                    <RefreshCw className="w-3.5 h-3.5 animate-spin" />
-                    <span>Processing...</span>
-                  </>
-                ) : (
-                  <span>Edit</span>
-                )}
+                <span>{isTampering ? "Executing..." : "Attempt Mutation"}</span>
               </button>
             </div>
           </div>
         </div>
       )}
-
     </div>
   );
 }

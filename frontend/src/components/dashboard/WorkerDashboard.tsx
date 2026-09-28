@@ -13,7 +13,6 @@ import {
   HardHat,
   BookOpen,
   MapPin,
-  HelpCircle,
   AlertTriangle,
   Plus,
   Send,
@@ -24,20 +23,18 @@ import {
   Loader2,
   RefreshCw,
   Search,
-  WifiOff,
   Radio,
   FileCheck,
-  Calendar,
   CalendarDays,
-  FileCheck2,
-  FileText,
-  UserCheck2,
-  Briefcase,
-  ChevronRight,
+  X,
+  Compass,
+  ArrowRight,
+  Activity,
 } from "lucide-react";
 import { useAuthStore } from "@/lib/store/auth-store";
 import { WorkerIssueReport, WorkerIssueOut, WorkerLeave, WorkerLeaveRequest } from "@/lib/types/domain";
 import { reportWorkerIssue, fetchMyWorkerIssues, submitWorkerLeave, fetchWorkerLeaves } from "@/lib/api/worker";
+import { TechnicalPanel, CommandMetric, TelemetryCard } from "@/components/design-system";
 
 interface WorkerDashboardProps {
   data: Record<string, any>;
@@ -85,7 +82,7 @@ const ISSUE_CATEGORIES = [
 export function WorkerDashboard({ data, mineSiteName }: WorkerDashboardProps) {
   const { activeMineSiteId, activeMineName, userName } = useAuthStore();
   const [activePortalTab, setActivePortalTab] = useState<"HAZARDS" | "LEAVES">("HAZARDS");
-  
+
   // Hazard Modal & Form State
   const [modalOpen, setModalOpen] = useState(false);
   const [submitting, setSubmitting] = useState(false);
@@ -144,7 +141,6 @@ export function WorkerDashboard({ data, mineSiteName }: WorkerDashboardProps) {
     ambient_temp_c: 27.8,
   };
 
-  const safetyRules = data.statutory_safety_rules || [];
   const sosProtocol = data.sos_protocol || {
     emergency_hotline: "Pit-Bottom Dial #101 / Control Room 07752-240101",
     refuge_chamber_location: "Refuge Chamber 3B (180m West of Panel 7 Intake)",
@@ -248,7 +244,6 @@ export function WorkerDashboard({ data, mineSiteName }: WorkerDashboardProps) {
           ? "EMERGENCY STOP WARNING BROADCAST! Colliery Manager and Control Room notified immediately."
           : "Issue reported successfully. Logged to mine safety register & queued."
       );
-      // Reset form
       setDescription("");
       setIsEmergency(false);
       setPhotoUrl("");
@@ -266,633 +261,403 @@ export function WorkerDashboard({ data, mineSiteName }: WorkerDashboardProps) {
   };
 
   return (
-    <div className="space-y-6 animate-in fade-in duration-300">
-      {/* Worker Greeting & Live Shift Card */}
-      <div className="p-6 rounded-2xl bg-gradient-to-r from-slate-900 via-slate-900/90 to-amber-950/30 border border-slate-800 shadow-2xl flex flex-col md:flex-row md:items-center justify-between gap-6">
-        <div className="flex items-start gap-4">
-          <div className="w-14 h-14 rounded-2xl bg-amber-500/15 border border-amber-500/30 text-amber-400 flex items-center justify-center shrink-0 shadow-lg shadow-amber-950/30">
-            <HardHat className="w-8 h-8" />
-          </div>
-          <div>
-            <div className="flex items-center gap-2">
-              <span className="text-xs font-mono font-bold text-amber-400 bg-amber-500/10 px-2 py-0.5 rounded border border-amber-500/20">
-                {profile.worker_id}
-              </span>
-              <h1 className="text-xl font-bold text-slate-100">{profile.worker_name}</h1>
-              <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-2.5 py-0.5 rounded-full">
-                <CheckCircle2 className="w-3 h-3" />
-                {profile.biometric_status.replace(/_/g, " ")}
-              </span>
+    <div className="space-y-6">
+      {/* ── WORKER HERO: INDUSTRIAL OPERATIONS CONSOLE ───────────────────── */}
+      <div className="p-6 rounded-2xl bg-[#111827] border border-white/10 shadow-2xl relative overflow-hidden corner-ticks">
+        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
+          <div className="flex items-start gap-4">
+            <div className="w-14 h-14 rounded-2xl bg-[#F5B51B]/15 border border-[#F5B51B]/40 text-[#F5B51B] flex items-center justify-center shrink-0 shadow-lg">
+              <HardHat className="w-8 h-8 stroke-[2.2]" />
             </div>
-            <p className="text-xs text-slate-400 mt-1 flex items-center gap-2">
-              <span>{profile.designation}</span>
-              <span>&bull;</span>
-              <span className="text-slate-300 font-medium">{profile.active_mine}</span>
-            </p>
+            <div>
+              <div className="flex items-center gap-2">
+                <span className="text-[10px] font-mono font-bold text-[#F5B51B] bg-[#F5B51B]/15 px-2 py-0.5 rounded border border-[#F5B51B]/30">
+                  {profile.worker_id}
+                </span>
+                <h1 className="text-xl md:text-2xl font-black text-white font-display">
+                  {profile.worker_name}
+                </h1>
+                <span className="inline-flex items-center gap-1 text-[10px] font-mono font-bold text-[#00C896] bg-[#00C896]/15 border border-[#00C896]/30 px-2 py-0.5 rounded-full">
+                  <CheckCircle2 className="w-3 h-3" />
+                  {profile.biometric_status.replace(/_/g, " ")}
+                </span>
+              </div>
+              <p className="text-xs text-slate-300 mt-1 font-mono">
+                <span>{profile.designation}</span> &bull;{" "}
+                <span className="text-white font-bold">{profile.active_mine}</span>
+              </p>
+            </div>
           </div>
-        </div>
 
-        <div className="flex items-center gap-3">
-          <div className="px-4 py-2 rounded-xl bg-slate-950/80 border border-slate-800 text-right">
-            <div className="text-[10px] uppercase font-bold text-slate-400">Shift Allocation</div>
-            <div className="text-xs font-bold text-slate-200 mt-0.5">{profile.shift}</div>
-          </div>
-          <div className="px-4 py-2 rounded-xl bg-slate-950/80 border border-slate-800 text-right">
-            <div className="text-[10px] uppercase font-bold text-slate-400">Hours Logged Today</div>
-            <div className="text-xs font-mono font-bold text-amber-400 mt-0.5">{profile.hours_logged_today}</div>
+          {/* Operational Shift & Hazard Emergency Action */}
+          <div className="flex flex-wrap items-center gap-3">
+            <div className="px-3.5 py-2 rounded-xl bg-[#080D16] border border-white/5 font-mono text-right">
+              <div className="text-[9px] uppercase text-slate-400">Shift Allocation</div>
+              <div className="text-xs font-bold text-white mt-0.5">{profile.shift}</div>
+            </div>
+
+            <div className="px-3.5 py-2 rounded-xl bg-[#080D16] border border-white/5 font-mono text-right">
+              <div className="text-[9px] uppercase text-slate-400">Hours Logged</div>
+              <div className="text-xs font-bold text-[#F5B51B] mt-0.5">{profile.hours_logged_today}</div>
+            </div>
+
+            <button
+              onClick={() => setModalOpen(true)}
+              className="px-5 py-2.5 rounded-xl bg-[#FF5C68] hover:bg-rose-500 text-white text-xs font-bold font-display shadow-lg shadow-rose-950 flex items-center gap-2 transition-all hover:scale-105"
+            >
+              <AlertTriangle className="w-4 h-4" />
+              <span>REPORT PIT HAZARD</span>
+            </button>
           </div>
         </div>
       </div>
 
-      {/* Live Safety Telemetry Gauge Row */}
+      {/* ── SAFETY STATUS: 4 LARGE INDUSTRIAL TELEMETRY CARDS ─────────────── */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        {/* Methane Meter */}
-        <div className="p-5 rounded-2xl bg-slate-900 border border-slate-800 shadow-xl">
-          <div className="flex items-center justify-between">
-            <span className="text-xs font-semibold text-slate-400">CH₄ Methane Concentration</span>
-            <Flame className="w-4 h-4 text-emerald-400" />
-          </div>
-          <div className="text-3xl font-black text-emerald-400 font-mono mt-2">{gasLive.ch4_methane_pct}%</div>
-          <div className="text-[11px] text-slate-500 mt-1 flex items-center justify-between">
-            <span>Status: <strong className="text-emerald-400 font-bold">{gasLive.ch4_status}</strong></span>
-            <span>Limit: {gasLive.ch4_limit_pct}%</span>
-          </div>
-        </div>
+        <TelemetryCard
+          label="Methane Concentration"
+          value={gasLive.ch4_methane_pct}
+          unit="%"
+          sensorId="SEN-UG-CH4-01"
+          statutoryLimit="≤ 0.75% Return"
+          cmrReference="CMR 2017 Reg 153"
+          status={gasLive.ch4_methane_pct >= 0.75 ? "CRITICAL" : "NORMAL"}
+          icon={Flame}
+          rateOfRise="+0.001 %/h"
+        />
 
-        {/* Carbon Monoxide Meter */}
-        <div className="p-5 rounded-2xl bg-slate-900 border border-slate-800 shadow-xl">
-          <div className="flex items-center justify-between">
-            <span className="text-xs font-semibold text-slate-400">CO Carbon Monoxide</span>
-            <ShieldAlert className="w-4 h-4 text-blue-400" />
-          </div>
-          <div className="text-3xl font-black text-blue-400 font-mono mt-2">{gasLive.co_carbon_monoxide_ppm} ppm</div>
-          <div className="text-[11px] text-slate-500 mt-1 flex items-center justify-between">
-            <span>Status: <strong className="text-blue-400 font-bold">{gasLive.co_status}</strong></span>
-            <span>Limit: {gasLive.co_limit_ppm} ppm</span>
-          </div>
-        </div>
+        <TelemetryCard
+          label="Carbon Monoxide"
+          value={gasLive.co_carbon_monoxide_ppm}
+          unit="ppm"
+          sensorId="SEN-UG-CO-02"
+          statutoryLimit="≤ 50.0 ppm"
+          cmrReference="CMR Spontaneous Limit"
+          status={gasLive.co_carbon_monoxide_ppm >= 25 ? "WARNING" : "NORMAL"}
+          icon={ShieldAlert}
+          rateOfRise="+0.4 ppm/h"
+        />
 
-        {/* Airflow Velocity */}
-        <div className="p-5 rounded-2xl bg-slate-900 border border-slate-800 shadow-xl">
-          <div className="flex items-center justify-between">
-            <span className="text-xs font-semibold text-slate-400">Face Airflow Velocity</span>
-            <Wind className="w-4 h-4 text-teal-400" />
-          </div>
-          <div className="text-3xl font-black text-slate-100 font-mono mt-2">{gasLive.airflow_velocity_mps} m/s</div>
-          <div className="text-[11px] text-slate-500 mt-1 flex items-center justify-between">
-            <span>Status: <strong className="text-teal-400 font-bold">{gasLive.airflow_status}</strong></span>
-            <span>Min: 0.5 m/s</span>
-          </div>
-        </div>
+        <TelemetryCard
+          label="Airflow Velocity"
+          value={gasLive.airflow_velocity_mps}
+          unit="m/s"
+          sensorId="SEN-UG-VENT-03"
+          statutoryLimit="0.5 – 4.0 m/s"
+          cmrReference="CMR 2017 Reg 154"
+          status="NORMAL"
+          icon={Wind}
+          rateOfRise="Stable"
+        />
 
-        {/* Working Zone */}
-        <div className="p-5 rounded-2xl bg-slate-900 border border-slate-800 shadow-xl">
-          <div className="flex items-center justify-between">
-            <span className="text-xs font-semibold text-slate-400">Assigned Working Zone</span>
-            <MapPin className="w-4 h-4 text-amber-400" />
+        <div className="p-4 rounded-xl bg-[#111827] border border-white/10 flex flex-col justify-between font-mono">
+          <div className="flex items-center justify-between text-xs text-slate-400 pb-2 border-b border-white/5">
+            <span className="font-bold text-white text-xs">Working Zone Telemetry</span>
+            <span className="text-[9px] px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 font-bold">
+              ACTIVE SEAM
+            </span>
           </div>
-          <div className="text-sm font-bold text-slate-200 mt-2 truncate">{profile.assigned_zone}</div>
-          <div className="text-[11px] text-slate-500 mt-2">
-            Pit Ambient Temp: <strong className="text-slate-300 font-mono">{gasLive.ambient_temp_c}°C</strong>
+          <div className="my-2">
+            <div className="text-xs font-bold text-slate-200">{profile.assigned_zone}</div>
+            <div className="text-2xl font-black text-white mt-1">{gasLive.ambient_temp_c}°C</div>
+          </div>
+          <div className="pt-2 border-t border-white/5 text-[10px] text-slate-400 flex justify-between">
+            <span>Air Temp Normal</span>
+            <span className="text-[#00C896]">Max: 32.5°C</span>
           </div>
         </div>
       </div>
 
-      {/* PORTAL NAVIGATION TABS: Hazards vs Statutory Leave */}
-      <div className="flex items-center gap-2 border-b border-slate-800 pb-2">
+      {/* ── UNDERGROUND GALLERY MAP & REFUGE CHAMBERS ──────────────────────── */}
+      <TechnicalPanel
+        title="Underground Gallery Incline Map & Safety Stations"
+        badge="GALLERY 4B • PANEL 7 INCLINE"
+        cornerTicks
+      >
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+          {/* Schematic SVG Map */}
+          <div className="lg:col-span-8 bg-[#080D16] rounded-xl p-3 border border-white/5 relative overflow-hidden">
+            <svg className="w-full h-56" viewBox="0 0 500 220" fill="none">
+              {/* Mine galleries */}
+              <rect x="20" y="20" width="460" height="180" rx="8" fill="#050A12" stroke="#202936" />
+              
+              {/* Tunnels */}
+              <path d="M 60 40 L 60 180" stroke="#00C896" strokeWidth="6" strokeLinecap="round" opacity="0.8" />
+              <path d="M 60 100 L 440 100" stroke="#00C896" strokeWidth="6" strokeLinecap="round" opacity="0.8" />
+              <path d="M 240 100 L 240 180" stroke="#28B9C7" strokeWidth="5" strokeLinecap="round" />
+              <path d="M 440 40 L 440 180" stroke="#28B9C7" strokeWidth="5" strokeLinecap="round" />
+
+              {/* Refuge Chamber 3B */}
+              <rect x="220" y="160" width="40" height="30" rx="4" fill="#00C896" />
+              <text x="225" y="178" fill="#050A12" fontSize="8" fontWeight="bold" fontFamily="monospace">REFUGE</text>
+              <text x="228" y="186" fill="#050A12" fontSize="7" fontWeight="bold" fontFamily="monospace">3B</text>
+
+              {/* Worker Current Location Pin */}
+              <circle cx="160" cy="100" r="7" fill="#F5B51B" className="animate-ping" />
+              <circle cx="160" cy="100" r="5" fill="#F5B51B" />
+              <text x="135" y="85" fill="#F5B51B" fontSize="9" fontWeight="bold" fontFamily="monospace">YOU (W-104)</text>
+
+              {/* Face Station */}
+              <rect x="420" y="85" width="30" height="30" rx="4" fill="#FF5C68" opacity="0.8" />
+              <text x="424" y="103" fill="#FFFFFF" fontSize="8" fontWeight="bold" fontFamily="monospace">FACE</text>
+
+              {/* Incline Mouth */}
+              <circle cx="60" cy="40" r="8" fill="#28B9C7" />
+              <text x="75" y="44" fill="#94A3B8" fontSize="9" fontFamily="monospace">SHAFT #2 CAGE (SURFACE)</text>
+            </svg>
+            <div className="absolute bottom-2 left-2 px-2 py-0.5 rounded bg-black/60 text-[9px] font-mono text-slate-400">
+              Escort Route: Follow Green Reflective Beacons to Shaft #2
+            </div>
+          </div>
+
+          {/* SOS Protocols */}
+          <div className="lg:col-span-4 space-y-3 font-mono text-xs">
+            <div className="p-3 rounded-xl bg-[#080D16] border border-white/5">
+              <span className="text-[10px] text-slate-400 block uppercase">Pit-Bottom SOS Hotline</span>
+              <span className="text-white font-bold text-xs mt-0.5 block">{sosProtocol.emergency_hotline}</span>
+            </div>
+            <div className="p-3 rounded-xl bg-[#080D16] border border-white/5">
+              <span className="text-[10px] text-slate-400 block uppercase">Nearest Refuge Chamber</span>
+              <span className="text-[#00C896] font-bold text-xs mt-0.5 block">{sosProtocol.refuge_chamber_location}</span>
+            </div>
+            <div className="p-3 rounded-xl bg-[#080D16] border border-white/5">
+              <span className="text-[10px] text-slate-400 block uppercase">Statutory Evacuation Route</span>
+              <span className="text-slate-300 text-xs mt-0.5 block">{sosProtocol.evacuation_route}</span>
+            </div>
+          </div>
+        </div>
+      </TechnicalPanel>
+
+      {/* ── PORTAL TABS: HAZARDS / GRIEVANCES VS STATUTORY LEAVES ─────────── */}
+      <div className="flex items-center gap-2 border-b border-white/10 pb-2">
         <button
           onClick={() => setActivePortalTab("HAZARDS")}
-          className={`px-4 py-2.5 rounded-2xl text-xs font-bold transition-all flex items-center gap-2 ${
+          className={`px-4 py-2 rounded-xl text-xs font-bold font-display transition-all flex items-center gap-2 ${
             activePortalTab === "HAZARDS"
-              ? "bg-amber-500 text-slate-950 shadow-lg shadow-amber-950/40 font-extrabold"
-              : "bg-slate-900 text-slate-400 hover:text-slate-200 border border-slate-800"
+              ? "bg-[#00C896] text-[#050A12] shadow-md shadow-[#00C896]/20"
+              : "bg-[#111827] text-slate-400 hover:text-white border border-white/5"
           }`}
         >
-          <AlertTriangle className="w-4 h-4" />
-          <span>On-Ground Hazards &amp; Grievance Addressal</span>
-          <span className="px-1.5 py-0.2 rounded-full text-[10px] bg-slate-950/40 font-mono">
-            {issues.length}
-          </span>
+          <AlertTriangle className="w-3.5 h-3.5" />
+          <span>Reported Pit Hazards ({issues.length})</span>
         </button>
 
         <button
           onClick={() => setActivePortalTab("LEAVES")}
-          className={`px-4 py-2.5 rounded-2xl text-xs font-bold transition-all flex items-center gap-2 ${
+          className={`px-4 py-2 rounded-xl text-xs font-bold font-display transition-all flex items-center gap-2 ${
             activePortalTab === "LEAVES"
-              ? "bg-emerald-500 text-slate-950 shadow-lg shadow-emerald-950/40 font-extrabold"
-              : "bg-slate-900 text-slate-400 hover:text-slate-200 border border-slate-800"
+              ? "bg-[#00C896] text-[#050A12] shadow-md shadow-[#00C896]/20"
+              : "bg-[#111827] text-slate-400 hover:text-white border border-white/5"
           }`}
         >
-          <CalendarDays className="w-4 h-4" />
-          <span>Statutory Leave &amp; Shift Relief Portal (Mines Rules 1955)</span>
-          <span className="px-1.5 py-0.2 rounded-full text-[10px] bg-slate-950/40 font-mono">
-            {leaves.length}
-          </span>
+          <CalendarDays className="w-3.5 h-3.5" />
+          <span>Statutory Leave &amp; Shift Relief ({leaves.length})</span>
         </button>
       </div>
 
-      {/* TAB 1: WORKER ISSUE & HAZARD ADDRESSAL PORTAL */}
+      {/* TAB 1: HAZARDS */}
       {activePortalTab === "HAZARDS" && (
-        <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-xl space-y-6">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-800 pb-4">
-            <div>
-              <div className="flex items-center gap-2">
-                <AlertTriangle className="w-5 h-5 text-amber-400" />
-                <h2 className="text-lg font-black text-slate-100">Worker Issue &amp; Hazard Addressal Portal</h2>
-              </div>
-              <p className="text-xs text-slate-400 mt-1">
-                Log on-ground defects, strata instability, ventilation faults, or machinery issues directly to Colliery Management.
-              </p>
-            </div>
-
+        <TechnicalPanel
+          title="On-Ground Pit Hazards &amp; Grievance Log"
+          badge="LIVE DISPATCH"
+          actionSlot={
             <div className="flex items-center gap-2">
               <button
                 onClick={loadIssues}
                 disabled={loadingIssues}
-                className="p-2 rounded-xl bg-slate-800 hover:bg-slate-750 text-slate-300 text-xs font-semibold border border-slate-700 flex items-center gap-1.5 transition-all"
-                title="Refresh issues list"
+                className="p-1.5 rounded-lg bg-white/5 hover:bg-white/10 text-slate-300 text-xs font-mono flex items-center gap-1"
               >
-                <RefreshCw className={`w-3.5 h-3.5 ${loadingIssues ? "animate-spin text-amber-400" : ""}`} />
-                <span>Sync Status</span>
+                <RefreshCw className={`w-3 h-3 ${loadingIssues ? "animate-spin text-[#00C896]" : ""}`} />
+                <span>Sync</span>
               </button>
-
               <button
                 onClick={() => setModalOpen(true)}
-                className="px-4 py-2 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 text-xs font-bold transition-all shadow-md flex items-center gap-1.5"
+                className="px-3 py-1.5 rounded-lg bg-[#00C896] hover:bg-[#08B98A] text-[#050A12] text-xs font-bold flex items-center gap-1"
               >
-                <Plus className="w-4 h-4" />
-                <span>Log New Grievance</span>
+                <Plus className="w-3.5 h-3.5" />
+                <span>Log Hazard</span>
               </button>
             </div>
-          </div>
-
-          {/* My Reported Issues Real-Time Resolution List */}
-          <div>
-            <h3 className="text-xs font-bold text-slate-300 uppercase tracking-wider mb-3 flex items-center gap-2">
-              <Radio className="w-3.5 h-3.5 text-emerald-400 animate-pulse" />
-              <span>My Reported Issues &amp; Resolution Tracking</span>
-            </h3>
-
-            {loadingIssues ? (
-              <div className="space-y-3">
-                {[1, 2, 3].map((n) => (
-                  <div key={n} className="h-20 rounded-xl bg-slate-950 border border-slate-800 animate-pulse" />
-                ))}
-              </div>
-            ) : issues.length === 0 ? (
-              <div className="p-8 rounded-xl bg-slate-950/60 border border-slate-800 text-center">
-                <FileCheck className="w-8 h-8 text-slate-600 mx-auto mb-2" />
-                <p className="text-xs text-slate-400">No active hazards or grievances reported for this shift.</p>
-              </div>
-            ) : (
-              <div className="space-y-3">
-                {issues.map((item) => {
-                  const isEmergencyStop = item.urgency === "EMERGENCY_STOP" || item.is_emergency_stop;
-                  const statusColor =
-                    item.status === "RECTIFIED"
-                      ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/30"
-                      : item.status === "INVESTIGATING"
-                      ? "bg-blue-500/10 text-blue-400 border-blue-500/30"
-                      : "bg-amber-500/10 text-amber-400 border-amber-500/30";
-
-                  return (
-                    <div
-                      key={item.id}
-                      className={`p-4 rounded-xl border bg-slate-950/80 transition-all ${
-                        isEmergencyStop
-                          ? "border-rose-500/40 bg-rose-950/10"
-                          : "border-slate-800 hover:border-slate-700"
-                      }`}
-                    >
-                      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-2">
-                        <div className="flex items-center gap-2 flex-wrap">
-                          <span className="text-[10px] font-mono font-bold uppercase px-2 py-0.5 rounded border bg-slate-800 text-slate-300">
-                            {item.issue_category.replace(/_/g, " ")}
-                          </span>
-
-                          <span
-                            className={`text-[10px] font-mono font-bold uppercase px-2 py-0.5 rounded border ${
-                              isEmergencyStop
-                                ? "bg-rose-500/20 text-rose-300 border-rose-500/40 animate-pulse"
-                                : "bg-slate-800 text-slate-400 border-slate-700"
-                            }`}
-                          >
-                            {isEmergencyStop ? "🛑 EMERGENCY STOP" : item.urgency}
-                          </span>
-
-                          <span className="text-xs text-slate-300 font-semibold flex items-center gap-1">
-                            <MapPin className="w-3.5 h-3.5 text-amber-400" />
-                            {item.location_description}
-                          </span>
-                        </div>
-
-                        {/* Status Progress Pill */}
-                        <div className="flex items-center gap-2">
-                          <span className={`text-[10px] font-mono font-bold px-2.5 py-1 rounded-full border ${statusColor}`}>
-                            ● {item.status.replace(/_/g, " ")}
-                          </span>
-                        </div>
-                      </div>
-
-                      <p className="text-xs text-slate-300 leading-relaxed pl-1">{item.description}</p>
-
-                      <div className="mt-2.5 pt-2 border-t border-slate-800/80 flex items-center justify-between text-[11px] text-slate-500">
-                        <span>Reported by: <strong className="text-slate-400">{item.reported_by_name || "Mining Sirdar"}</strong></span>
-                        <span>{new Date(item.created_at).toLocaleString()}</span>
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-            )}
-          </div>
-        </div>
-      )}
-
-      {/* TAB 2: STATUTORY LEAVE APPLICATIONS & SHIFT RELIEF PORTAL */}
-      {activePortalTab === "LEAVES" && (
-        <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-xl space-y-6 animate-in fade-in duration-200">
-          {/* Leave Section Header */}
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-800 pb-4">
-            <div>
-              <div className="flex items-center gap-2">
-                <CalendarDays className="w-5 h-5 text-emerald-400" />
-                <h2 className="text-lg font-black text-slate-100">
-                  Statutory Leave Applications &amp; Shift Relief Allocation
-                </h2>
-              </div>
-              <p className="text-xs text-slate-400 mt-1">
-                Formal leave submission pursuant to <strong>Mines Rules 1955 Chapter VII (Statutory Leave with Wages)</strong>.
-              </p>
+          }
+        >
+          {loadingIssues ? (
+            <div className="space-y-2">
+              {[1, 2, 3].map((n) => (
+                <div key={n} className="h-16 rounded-xl bg-[#080D16] animate-pulse" />
+              ))}
             </div>
-
-            <div className="flex items-center gap-2">
-              <button
-                onClick={loadLeaves}
-                disabled={loadingLeaves}
-                className="p-2 rounded-xl bg-slate-800 hover:bg-slate-750 text-slate-300 text-xs font-semibold border border-slate-700 flex items-center gap-1.5 transition-all"
-                title="Refresh leave applications"
-              >
-                <RefreshCw className={`w-3.5 h-3.5 ${loadingLeaves ? "animate-spin text-emerald-400" : ""}`} />
-                <span>Sync Leaves</span>
-              </button>
-
-              <button
-                onClick={() => setLeaveModalOpen(true)}
-                className="px-4 py-2 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 text-xs font-bold transition-all shadow-md flex items-center gap-1.5 shadow-emerald-950/40"
-              >
-                <Plus className="w-4 h-4" />
-                <span>Apply for Statutory Leave</span>
-              </button>
+          ) : issues.length === 0 ? (
+            <div className="p-8 text-center text-xs font-mono text-slate-400">
+              No active hazards logged for this shift. All stations report normal.
             </div>
-          </div>
-
-          {/* Statutory Leave Balances Metric Cards */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div className="p-4 rounded-2xl bg-slate-950 border border-slate-800 flex items-center justify-between">
-              <div>
-                <div className="text-xs text-slate-400 font-medium">Earned Statutory Leave</div>
-                <div className="text-2xl font-bold text-emerald-400 mt-1">
-                  14 <span className="text-xs font-normal text-slate-400">Days Remaining</span>
-                </div>
-                <div className="text-[10px] text-slate-500 mt-0.5">Accrued 1 day per 20 underground shifts</div>
-              </div>
-              <Calendar className="w-8 h-8 text-emerald-400 opacity-80" />
-            </div>
-
-            <div className="p-4 rounded-2xl bg-slate-950 border border-slate-800 flex items-center justify-between">
-              <div>
-                <div className="text-xs text-slate-400 font-medium">Medical / Sick Leave</div>
-                <div className="text-2xl font-bold text-blue-400 mt-1">
-                  8 <span className="text-xs font-normal text-slate-400">Days Available</span>
-                </div>
-                <div className="text-[10px] text-slate-500 mt-0.5">Full statutory sick wage protection</div>
-              </div>
-              <FileCheck2 className="w-8 h-8 text-blue-400 opacity-80" />
-            </div>
-
-            <div className="p-4 rounded-2xl bg-slate-950 border border-slate-800 flex items-center justify-between">
-              <div>
-                <div className="text-xs text-slate-400 font-medium">Casual Contingency Leave</div>
-                <div className="text-2xl font-bold text-amber-400 mt-1">
-                  5 <span className="text-xs font-normal text-slate-400">Days Available</span>
-                </div>
-                <div className="text-[10px] text-slate-500 mt-0.5">Personal emergency / family quota</div>
-              </div>
-              <Briefcase className="w-8 h-8 text-amber-400 opacity-80" />
-            </div>
-          </div>
-
-          {/* Leave Applications History Table */}
-          <div>
-            <h3 className="text-xs font-bold text-slate-300 uppercase tracking-wider mb-3 flex items-center gap-2">
-              <Clock className="w-3.5 h-3.5 text-emerald-400" />
-              <span>Leave Application History &amp; Approval Status</span>
-            </h3>
-
-            {loadingLeaves ? (
-              <div className="space-y-3">
-                {[1, 2].map((n) => (
-                  <div key={n} className="h-20 rounded-xl bg-slate-950 border border-slate-800 animate-pulse" />
-                ))}
-              </div>
-            ) : leaves.length === 0 ? (
-              <div className="p-8 rounded-xl bg-slate-950/60 border border-slate-800 text-center">
-                <Calendar className="w-8 h-8 text-slate-600 mx-auto mb-2" />
-                <p className="text-xs text-slate-400">No leave applications recorded for this financial cycle.</p>
-              </div>
-            ) : (
-              <div className="space-y-3">
-                {leaves.map((leave) => {
-                  const isApproved = leave.status === "APPROVED";
-                  const isRejected = leave.status === "REJECTED";
-                  const statusBadgeClass = isApproved
-                    ? "bg-emerald-500/20 text-emerald-300 border-emerald-500/40"
-                    : isRejected
-                    ? "bg-rose-500/20 text-rose-300 border-rose-500/40"
-                    : "bg-amber-500/20 text-amber-300 border-amber-500/40";
-
-                  return (
-                    <div
-                      key={leave.id}
-                      className="p-4 rounded-xl border border-slate-800 bg-slate-950/80 hover:border-slate-700 transition-all"
-                    >
-                      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-2">
-                        <div className="flex items-center gap-2 flex-wrap">
-                          <span className="text-[10px] font-mono font-bold uppercase px-2 py-0.5 rounded border bg-slate-800 text-slate-300">
-                            {leave.leave_type.replace(/_/g, " ")}
-                          </span>
-
-                          <span className="text-xs text-slate-200 font-bold flex items-center gap-1.5">
-                            <CalendarDays className="w-3.5 h-3.5 text-emerald-400" />
-                            {leave.start_date} ➔ {leave.end_date}
-                          </span>
-
-                          <span className="text-[11px] font-mono text-slate-400 bg-slate-900 px-2 py-0.5 rounded border border-slate-800">
-                            {leave.total_days} {leave.total_days === 1 ? "Day" : "Days"}
-                          </span>
-                        </div>
-
-                        <span className={`text-[10px] font-mono font-bold uppercase px-2.5 py-1 rounded-full border ${statusBadgeClass}`}>
-                          ● {leave.status}
-                        </span>
-                      </div>
-
-                      <p className="text-xs text-slate-300 pl-1 leading-relaxed">{leave.reason}</p>
-
-                      <div className="mt-3 pt-2 border-t border-slate-800/80 flex flex-col sm:flex-row sm:items-center justify-between text-[11px] text-slate-400 gap-1.5">
-                        <div className="flex items-center gap-1.5">
-                          <UserCheck2 className="w-3.5 h-3.5 text-amber-400" />
-                          <span>Nominated Shift Relief: <strong className="text-slate-200">{leave.relief_worker_name || "Unassigned"}</strong></span>
-                        </div>
-
-                        {leave.reviewed_by && (
-                          <div className="text-slate-400">
-                            Reviewed by: <strong className="text-emerald-300">{leave.reviewed_by}</strong>
-                            {leave.review_notes && <span className="text-slate-500 ml-1">({leave.review_notes})</span>}
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-            )}
-          </div>
-        </div>
-      )}
-
-      {/* Main Bottom Grid: Statutory Safety Rules (Left) + Emergency SOS (Right) */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-        {/* Left 8 Cols: CMR 2017 Statutory Safety Rules Guidelines */}
-        <div className="lg:col-span-8 bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-xl">
-          <div className="flex items-center justify-between border-b border-slate-800 pb-3 mb-4">
-            <div className="flex items-center gap-2">
-              <BookOpen className="w-4 h-4 text-amber-400" />
-              <h3 className="font-bold text-slate-100 text-sm">Essential CMR 2017 Safety Directives (Mining Sirdar Duty)</h3>
-            </div>
-            <span className="text-[10px] font-mono text-amber-400">DGMS Standard</span>
-          </div>
-
-          <div className="space-y-4">
-            {safetyRules.map((rule: any, i: number) => (
-              <div key={i} className="p-4 rounded-xl border border-slate-800 bg-slate-950/80 hover:border-slate-700 transition-all">
-                <div className="flex items-center justify-between mb-1.5">
-                  <div className="flex items-center gap-2 font-mono text-xs">
-                    <span className="font-bold text-amber-400 bg-amber-500/10 px-2 py-0.5 rounded border border-amber-500/20">
-                      {rule.rule_code}
-                    </span>
-                    <span className="font-bold text-slate-200">{rule.title}</span>
-                  </div>
-                  <span
-                    className={`text-[9px] font-mono font-bold uppercase px-2 py-0.5 rounded ${
-                      rule.importance === "CRITICAL"
-                        ? "bg-rose-500/20 text-rose-400 border border-rose-500/30"
-                        : "bg-blue-500/20 text-blue-400 border border-blue-500/30"
-                    }`}
-                  >
-                    {rule.importance}
-                  </span>
-                </div>
-                <p className="text-xs text-slate-400 leading-relaxed">{rule.directive}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        {/* Right 4 Cols: Emergency SOS Protocol & Refuge Chamber */}
-        <div className="lg:col-span-4 bg-gradient-to-b from-rose-950/30 via-slate-900 to-slate-900 border border-rose-500/30 rounded-2xl p-6 shadow-xl flex flex-col justify-between">
-          <div>
-            <div className="flex items-center gap-2 border-b border-slate-800 pb-3 mb-4">
-              <AlertOctagon className="w-5 h-5 text-rose-400" />
-              <h3 className="font-bold text-slate-100 text-sm">Emergency SOS &amp; Evacuation Protocol</h3>
-            </div>
-
-            <div className="space-y-4 text-xs">
-              <div className="p-3.5 rounded-xl bg-slate-950 border border-slate-800">
-                <span className="text-[10px] text-slate-500 font-mono block mb-1">EMERGENCY HOTLINE</span>
-                <span className="font-bold text-rose-400 font-mono text-sm">{sosProtocol.emergency_hotline}</span>
-              </div>
-
-              <div className="p-3.5 rounded-xl bg-slate-950 border border-slate-800">
-                <span className="text-[10px] text-slate-500 font-mono block mb-1">NEAREST REFUGE CHAMBER</span>
-                <span className="font-bold text-slate-200">{sosProtocol.refuge_chamber_location}</span>
-                <span className="text-[11px] text-emerald-400 block mt-1">Equipped with 48h Oxygen Supply &amp; Food</span>
-              </div>
-
-              <div className="p-3.5 rounded-xl bg-slate-950 border border-slate-800">
-                <span className="text-[10px] text-slate-500 font-mono block mb-1">PRIMARY ESCAPEWAY</span>
-                <span className="font-bold text-slate-200">{sosProtocol.evacuation_route}</span>
-              </div>
-            </div>
-          </div>
-
-          <div className="mt-6 pt-4 border-t border-slate-800 text-center">
-            <span className="text-[10px] text-slate-500 block">
-              In case of uncontainable gas ingress or roof fall, sound local klaxon and activate personal self-rescuer mask.
-            </span>
-          </div>
-        </div>
-      </div>
-
-      {/* MODAL: REPORT ON-GROUND HAZARD / ISSUE */}
-      {modalOpen && (
-        <div className="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4 animate-in fade-in duration-200">
-          <div className="bg-slate-900 border border-amber-500/40 rounded-2xl w-full max-w-xl shadow-2xl p-6 relative max-h-[90vh] overflow-y-auto">
-            <div className="flex items-center justify-between border-b border-slate-800 pb-3 mb-4">
-              <div className="flex items-center gap-2">
-                <AlertTriangle className="w-5 h-5 text-amber-400" />
-                <h3 className="font-black text-slate-100 text-base">Address an Issue / Report Hazard</h3>
-              </div>
-              <button
-                onClick={() => setModalOpen(false)}
-                className="text-slate-400 hover:text-white text-sm px-2 py-1 rounded-lg hover:bg-slate-800"
-              >
-                ✕
-              </button>
-            </div>
-
-            {successMsg && (
-              <div className="p-4 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-xs mb-4 flex items-center gap-2">
-                <CheckCircle2 className="w-4 h-4 shrink-0" />
-                <span>{successMsg}</span>
-              </div>
-            )}
-
-            {errorMsg && (
-              <div className="p-4 rounded-xl bg-rose-500/10 border border-rose-500/30 text-rose-400 text-xs mb-4 flex items-center gap-2">
-                <ShieldAlert className="w-4 h-4 shrink-0" />
-                <span>{errorMsg}</span>
-              </div>
-            )}
-
-            <form onSubmit={handleSubmitIssue} className="space-y-4">
-              {/* Category Selector */}
-              <div>
-                <label className="block text-xs font-bold text-slate-300 mb-1.5">
-                  1. Issue / Hazard Category
-                </label>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                  {ISSUE_CATEGORIES.map((cat) => {
-                    const Icon = cat.icon;
-                    const isSelected = category === cat.id;
-                    return (
-                      <button
-                        type="button"
-                        key={cat.id}
-                        onClick={() => setCategory(cat.id)}
-                        className={`p-3 rounded-xl border text-left flex items-start gap-2.5 transition-all ${
-                          isSelected
-                            ? "bg-amber-500/20 border-amber-500/60 shadow-md"
-                            : "bg-slate-950 border-slate-800 hover:border-slate-700"
+          ) : (
+            <div className="space-y-2.5">
+              {issues.map((item) => (
+                <div
+                  key={item.id}
+                  className="p-3.5 rounded-xl bg-[#080D16] border border-white/5 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs font-mono"
+                >
+                  <div className="space-y-1">
+                    <div className="flex items-center gap-2">
+                      <span className="font-bold text-white text-xs">{item.issue_category}</span>
+                      <span
+                        className={`text-[9px] px-1.5 py-0.2 rounded font-bold uppercase ${
+                          item.urgency === "EMERGENCY_STOP"
+                            ? "bg-rose-500/20 text-[#FF5C68] border border-rose-500/40"
+                            : "bg-amber-500/20 text-[#F5B51B] border border-amber-500/40"
                         }`}
                       >
-                        <Icon className={`w-4 h-4 shrink-0 mt-0.5 ${isSelected ? "text-amber-400" : "text-slate-400"}`} />
-                        <div>
-                          <div className={`text-xs font-bold ${isSelected ? "text-slate-100" : "text-slate-300"}`}>
-                            {cat.label}
-                          </div>
-                          <span className="text-[10px] text-slate-500 block">{cat.cmrRule}</span>
-                        </div>
-                      </button>
-                    );
-                  })}
+                        {item.urgency}
+                      </span>
+                    </div>
+                    <p className="text-slate-300 text-xs font-sans">{item.description}</p>
+                    <div className="text-[10px] text-slate-500">Location: {item.location_description}</div>
+                  </div>
+
+                  <div className="text-right shrink-0">
+                    <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-white/5 border border-white/10 text-[#00C896]">
+                      {item.status}
+                    </span>
+                  </div>
                 </div>
+              ))}
+            </div>
+          )}
+        </TechnicalPanel>
+      )}
+
+      {/* TAB 2: STATUTORY LEAVE */}
+      {activePortalTab === "LEAVES" && (
+        <TechnicalPanel
+          title="Statutory Leave Register (Mines Rules 1955)"
+          badge="SHIFT RELIEF MANDATORY"
+          actionSlot={
+            <button
+              onClick={() => setLeaveModalOpen(true)}
+              className="px-3 py-1.5 rounded-lg bg-[#00C896] hover:bg-[#08B98A] text-[#050A12] text-xs font-bold flex items-center gap-1"
+            >
+              <Plus className="w-3.5 h-3.5" />
+              <span>Apply Leave</span>
+            </button>
+          }
+        >
+          {loadingLeaves ? (
+            <div className="space-y-2">
+              {[1, 2].map((n) => (
+                <div key={n} className="h-16 rounded-xl bg-[#080D16] animate-pulse" />
+              ))}
+            </div>
+          ) : leaves.length === 0 ? (
+            <div className="p-8 text-center text-xs font-mono text-slate-400">
+              No leave applications recorded for this period.
+            </div>
+          ) : (
+            <div className="space-y-2.5">
+              {leaves.map((l) => (
+                <div
+                  key={l.id}
+                  className="p-3.5 rounded-xl bg-[#080D16] border border-white/5 flex items-center justify-between text-xs font-mono"
+                >
+                  <div>
+                    <div className="font-bold text-white text-xs">{l.leave_type.replace(/_/g, " ")}</div>
+                    <div className="text-[11px] text-slate-400 mt-0.5">
+                      {l.start_date} to {l.end_date} ({l.total_days} Days) &bull; Relief: {l.relief_worker_name}
+                    </div>
+                  </div>
+                  <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-emerald-500/10 text-[#00C896] border border-emerald-500/20">
+                    {l.status}
+                  </span>
+                </div>
+              ))}
+            </div>
+          )}
+        </TechnicalPanel>
+      )}
+
+      {/* ── HAZARD REPORTING MODAL ────────────────────────────────────────── */}
+      {modalOpen && (
+        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="bg-[#111827] border border-white/10 rounded-2xl max-w-lg w-full p-6 space-y-4 shadow-2xl corner-ticks">
+            <div className="flex items-center justify-between pb-3 border-b border-white/10">
+              <div className="flex items-center gap-2">
+                <AlertTriangle className="w-5 h-5 text-[#FF5C68]" />
+                <h3 className="font-display font-bold text-white text-sm">
+                  Log Underground Pit Hazard
+                </h3>
+              </div>
+              <button onClick={() => setModalOpen(false)} className="text-slate-400 hover:text-white">
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            <form onSubmit={handleSubmitIssue} className="space-y-3 font-mono text-xs">
+              {errorMsg && <div className="p-2 rounded bg-rose-500/20 text-rose-300">{errorMsg}</div>}
+              {successMsg && <div className="p-2 rounded bg-emerald-500/20 text-emerald-300">{successMsg}</div>}
+
+              <div>
+                <label className="text-slate-400 block mb-1">Hazard Category</label>
+                <select
+                  value={category}
+                  onChange={(e) => setCategory(e.target.value)}
+                  className="w-full p-2.5 rounded-xl bg-[#080D16] border border-white/10 text-white"
+                >
+                  {ISSUE_CATEGORIES.map((c) => (
+                    <option key={c.id} value={c.id}>
+                      {c.label} ({c.cmrRule})
+                    </option>
+                  ))}
+                </select>
               </div>
 
-              {/* Underground Gallery / Location Description */}
               <div>
-                <label className="block text-xs font-bold text-slate-300 mb-1.5">
-                  2. Underground Gallery / Incline Location
-                </label>
+                <label className="text-slate-400 block mb-1">Location / Gallery</label>
                 <input
                   type="text"
                   value={locationDesc}
                   onChange={(e) => setLocationDesc(e.target.value)}
-                  placeholder="e.g. Gallery 4, 380m Level near Shaft Bottom / Incline 1"
-                  className="w-full px-3.5 py-2.5 rounded-xl bg-slate-950 border border-slate-800 text-xs text-slate-200 focus:outline-none focus:border-amber-500"
-                  required
+                  className="w-full p-2.5 rounded-xl bg-[#080D16] border border-white/10 text-white"
                 />
               </div>
 
-              {/* Detailed Hazard Description */}
               <div>
-                <label className="block text-xs font-bold text-slate-300 mb-1.5">
-                  3. Description &amp; Ground Observations
-                </label>
+                <label className="text-slate-400 block mb-1">Hazard Description</label>
                 <textarea
-                  rows={3}
                   value={description}
                   onChange={(e) => setDescription(e.target.value)}
-                  placeholder="Describe the condition, smell, cracking sounds, mechanical brake slip, or gas reading observed..."
-                  className="w-full px-3.5 py-2.5 rounded-xl bg-slate-950 border border-slate-800 text-xs text-slate-200 focus:outline-none focus:border-amber-500 resize-none"
-                  required
+                  rows={3}
+                  placeholder="Describe observed cracks, gas odor, cable spark, or support failure..."
+                  className="w-full p-2.5 rounded-xl bg-[#080D16] border border-white/10 text-white"
                 />
               </div>
 
-              {/* Optional Photo / Evidence Link */}
-              <div>
-                <label className="block text-xs font-bold text-slate-300 mb-1.5 flex items-center justify-between">
-                  <span>4. Photo Evidence URL / Link (Optional)</span>
-                  <Camera className="w-3.5 h-3.5 text-slate-400" />
-                </label>
+              <div className="p-3 rounded-xl bg-[#FF5C68]/10 border border-[#FF5C68]/30 flex items-center gap-2">
                 <input
-                  type="text"
-                  value={photoUrl}
-                  onChange={(e) => setPhotoUrl(e.target.value)}
-                  placeholder="https://... or S3 snapshot link"
-                  className="w-full px-3.5 py-2 rounded-xl bg-slate-950 border border-slate-800 text-xs text-slate-200 focus:outline-none focus:border-amber-500 font-mono text-[11px]"
+                  type="checkbox"
+                  id="emergency-halt"
+                  checked={isEmergency}
+                  onChange={(e) => setIsEmergency(e.target.checked)}
+                  className="w-4 h-4 text-[#FF5C68] rounded bg-[#080D16]"
                 />
-              </div>
-
-              {/* Emergency Stop Toggle */}
-              <div className="p-4 rounded-xl bg-rose-950/20 border border-rose-500/30 flex items-center justify-between gap-4">
-                <div>
-                  <span className="text-xs font-bold text-rose-300 block flex items-center gap-1.5">
-                    <AlertOctagon className="w-4 h-4 text-rose-400" />
-                    Emergency Safety Threat (Halts Extraction)
-                  </span>
-                  <span className="text-[11px] text-slate-400">
-                    Immediately escalates CRITICAL alert to Colliery Manager and triggers sirens.
-                  </span>
-                </div>
-
-                <label className="relative inline-flex items-center cursor-pointer">
-                  <input
-                    type="checkbox"
-                    checked={isEmergency}
-                    onChange={(e) => setIsEmergency(e.target.checked)}
-                    className="sr-only peer"
-                  />
-                  <div className="w-11 h-6 bg-slate-800 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-rose-600"></div>
+                <label htmlFor="emergency-halt" className="text-xs text-white cursor-pointer font-bold">
+                  Declare Immediate Pit Halt / Emergency Stop
                 </label>
               </div>
 
-              {/* Action Buttons */}
-              <div className="flex items-center justify-end gap-3 pt-2">
+              <div className="flex justify-end gap-2 pt-2">
                 <button
                   type="button"
                   onClick={() => setModalOpen(false)}
-                  className="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-750 text-slate-300 text-xs font-semibold"
+                  className="px-4 py-2 rounded-xl bg-white/5 hover:bg-white/10 text-slate-300"
                 >
                   Cancel
                 </button>
-
                 <button
                   type="submit"
                   disabled={submitting}
-                  className={`px-5 py-2.5 rounded-xl text-xs font-bold flex items-center gap-2 shadow-lg transition-all ${
-                    isEmergency
-                      ? "bg-rose-600 hover:bg-rose-500 text-white shadow-rose-950/40"
-                      : "bg-amber-500 hover:bg-amber-400 text-slate-950 shadow-amber-950/40"
-                  }`}
+                  className="px-5 py-2 rounded-xl bg-[#FF5C68] hover:bg-rose-500 text-white font-bold flex items-center gap-1.5"
                 >
-                  {submitting ? (
-                    <Loader2 className="w-4 h-4 animate-spin" />
-                  ) : (
-                    <Send className="w-4 h-4" />
-                  )}
-                  <span>{isEmergency ? "Trigger Emergency Broadcast" : "Submit Issue Report"}</span>
+                  {submitting ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Send className="w-3.5 h-3.5" />}
+                  <span>Transmit Hazard</span>
                 </button>
               </div>
             </form>
@@ -900,182 +665,96 @@ export function WorkerDashboard({ data, mineSiteName }: WorkerDashboardProps) {
         </div>
       )}
 
-      {/* MODAL: APPLY FOR STATUTORY LEAVE (MINES RULES 1955) */}
+      {/* ── STATUTORY LEAVE MODAL ────────────────────────────────────────── */}
       {leaveModalOpen && (
-        <div className="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4 animate-in fade-in duration-200">
-          <div className="bg-slate-900 border border-emerald-500/40 rounded-2xl w-full max-w-xl shadow-2xl p-6 relative max-h-[90vh] overflow-y-auto">
-            <div className="flex items-center justify-between border-b border-slate-800 pb-3 mb-4">
+        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="bg-[#111827] border border-white/10 rounded-2xl max-w-lg w-full p-6 space-y-4 shadow-2xl corner-ticks">
+            <div className="flex items-center justify-between pb-3 border-b border-white/10">
               <div className="flex items-center gap-2">
-                <CalendarDays className="w-5 h-5 text-emerald-400" />
-                <div>
-                  <h3 className="font-black text-slate-100 text-base">Apply for Statutory Leave</h3>
-                  <span className="text-[10px] text-slate-400">Mines Rules 1955 Chapter VII (Leave with Wages)</span>
-                </div>
+                <CalendarDays className="w-5 h-5 text-[#00C896]" />
+                <h3 className="font-display font-bold text-white text-sm">
+                  Statutory Leave Application
+                </h3>
               </div>
-              <button
-                onClick={() => setLeaveModalOpen(false)}
-                className="text-slate-400 hover:text-white text-sm px-2 py-1 rounded-lg hover:bg-slate-800"
-              >
-                ✕
+              <button onClick={() => setLeaveModalOpen(false)} className="text-slate-400 hover:text-white">
+                <X className="w-4 h-4" />
               </button>
             </div>
 
-            {leaveSuccessMsg && (
-              <div className="p-4 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-xs mb-4 flex items-center gap-2">
-                <CheckCircle2 className="w-4 h-4 shrink-0" />
-                <span>{leaveSuccessMsg}</span>
-              </div>
-            )}
+            <form onSubmit={handleSubmitLeave} className="space-y-3 font-mono text-xs">
+              {leaveErrorMsg && <div className="p-2 rounded bg-rose-500/20 text-rose-300">{leaveErrorMsg}</div>}
+              {leaveSuccessMsg && <div className="p-2 rounded bg-emerald-500/20 text-emerald-300">{leaveSuccessMsg}</div>}
 
-            {leaveErrorMsg && (
-              <div className="p-4 rounded-xl bg-rose-500/10 border border-rose-500/30 text-rose-400 text-xs mb-4 flex items-center gap-2">
-                <ShieldAlert className="w-4 h-4 shrink-0" />
-                <span>{leaveErrorMsg}</span>
-              </div>
-            )}
-
-            <form onSubmit={handleSubmitLeave} className="space-y-4">
-              {/* Leave Type Selector */}
               <div>
-                <label className="block text-xs font-bold text-slate-300 mb-1.5">
-                  1. Statutory Leave Category
-                </label>
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
-                  {[
-                    { id: "EARNED_STATUTORY", label: "Earned Leave", desc: "14 days balance", icon: Calendar },
-                    { id: "SICK_MEDICAL", label: "Medical Sick", desc: "8 days balance", icon: FileCheck2 },
-                    { id: "CASUAL", label: "Casual Leave", desc: "5 days balance", icon: Briefcase },
-                  ].map((lt) => {
-                    const Icon = lt.icon;
-                    const isSelected = leaveType === lt.id;
-                    return (
-                      <button
-                        type="button"
-                        key={lt.id}
-                        onClick={() => setLeaveType(lt.id)}
-                        className={`p-3 rounded-xl border text-left transition-all ${
-                          isSelected
-                            ? "bg-emerald-500/20 border-emerald-500/60 shadow-md"
-                            : "bg-slate-950 border-slate-800 hover:border-slate-700"
-                        }`}
-                      >
-                        <Icon className={`w-4 h-4 shrink-0 mb-1 ${isSelected ? "text-emerald-400" : "text-slate-400"}`} />
-                        <div className={`text-xs font-bold ${isSelected ? "text-slate-100" : "text-slate-300"}`}>
-                          {lt.label}
-                        </div>
-                        <span className="text-[10px] text-slate-500 block">{lt.desc}</span>
-                      </button>
-                    );
-                  })}
-                </div>
+                <label className="text-slate-400 block mb-1">Leave Type</label>
+                <select
+                  value={leaveType}
+                  onChange={(e) => setLeaveType(e.target.value)}
+                  className="w-full p-2.5 rounded-xl bg-[#080D16] border border-white/10 text-white"
+                >
+                  <option value="EARNED_STATUTORY">Earned Statutory Leave (Mines Rules 1955)</option>
+                  <option value="CASUAL_EMERGENCY">Casual Emergency Leave</option>
+                  <option value="MEDICAL_DGMS">Statutory Medical / Injury Leave</option>
+                </select>
               </div>
 
-              {/* Date Pickers */}
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+              <div className="grid grid-cols-2 gap-2">
                 <div>
-                  <label className="block text-xs font-bold text-slate-300 mb-1">
-                    Start Date
-                  </label>
+                  <label className="text-slate-400 block mb-1">Start Date</label>
                   <input
                     type="date"
                     value={leaveStartDate}
                     onChange={(e) => setLeaveStartDate(e.target.value)}
-                    className="w-full px-3.5 py-2.5 rounded-xl bg-slate-950 border border-slate-800 text-xs text-slate-200 focus:outline-none focus:border-emerald-500 font-mono"
-                    required
+                    className="w-full p-2.5 rounded-xl bg-[#080D16] border border-white/10 text-white"
                   />
                 </div>
-
                 <div>
-                  <label className="block text-xs font-bold text-slate-300 mb-1">
-                    End Date
-                  </label>
+                  <label className="text-slate-400 block mb-1">End Date</label>
                   <input
                     type="date"
                     value={leaveEndDate}
                     onChange={(e) => setLeaveEndDate(e.target.value)}
-                    className="w-full px-3.5 py-2.5 rounded-xl bg-slate-950 border border-slate-800 text-xs text-slate-200 focus:outline-none focus:border-emerald-500 font-mono"
-                    required
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-xs font-bold text-slate-300 mb-1">
-                    Total Shift Days
-                  </label>
-                  <input
-                    type="number"
-                    min={1}
-                    max={90}
-                    value={leaveTotalDays}
-                    onChange={(e) => setLeaveTotalDays(Number(e.target.value))}
-                    className="w-full px-3.5 py-2.5 rounded-xl bg-slate-950 border border-slate-800 text-xs text-slate-200 focus:outline-none focus:border-emerald-500 font-mono font-bold"
-                    required
+                    className="w-full p-2.5 rounded-xl bg-[#080D16] border border-white/10 text-white"
                   />
                 </div>
               </div>
 
-              {/* Nominated Shift Relief Worker */}
               <div>
-                <label className="block text-xs font-bold text-slate-300 mb-1">
-                  2. Nominated Shift Relief (Mining Sirdar / Overman)
-                </label>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                  <input
-                    type="text"
-                    value={reliefWorkerId}
-                    onChange={(e) => setReliefWorkerId(e.target.value)}
-                    placeholder="Relief Badge ID (e.g. W-108)"
-                    className="w-full px-3.5 py-2 rounded-xl bg-slate-950 border border-slate-800 text-xs text-slate-200 focus:outline-none focus:border-emerald-500 font-mono"
-                  />
-                  <input
-                    type="text"
-                    value={reliefWorkerName}
-                    onChange={(e) => setReliefWorkerName(e.target.value)}
-                    placeholder="Relief Person Name"
-                    className="w-full px-3.5 py-2 rounded-xl bg-slate-950 border border-slate-800 text-xs text-slate-200 focus:outline-none focus:border-emerald-500"
-                  />
-                </div>
-                <span className="text-[10px] text-slate-500 mt-1 block">
-                  DGMS mandate: Shift must maintain certified statutory overman coverage during absence.
-                </span>
-              </div>
-
-              {/* Reason for Leave */}
-              <div>
-                <label className="block text-xs font-bold text-slate-300 mb-1.5">
-                  3. Reason for Leave Application
-                </label>
-                <textarea
-                  rows={3}
-                  value={leaveReason}
-                  onChange={(e) => setLeaveReason(e.target.value)}
-                  placeholder="State reason (e.g. Annual statutory vacation entitlement, family contingency, medical checkup)..."
-                  className="w-full px-3.5 py-2.5 rounded-xl bg-slate-950 border border-slate-800 text-xs text-slate-200 focus:outline-none focus:border-emerald-500 resize-none"
-                  required
+                <label className="text-slate-400 block mb-1">Designated Shift Relief Worker</label>
+                <input
+                  type="text"
+                  value={reliefWorkerName}
+                  onChange={(e) => setReliefWorkerName(e.target.value)}
+                  className="w-full p-2.5 rounded-xl bg-[#080D16] border border-white/10 text-white"
                 />
               </div>
 
-              {/* Action Buttons */}
-              <div className="flex items-center justify-end gap-3 pt-2">
+              <div>
+                <label className="text-slate-400 block mb-1">Reason for Leave</label>
+                <textarea
+                  value={leaveReason}
+                  onChange={(e) => setLeaveReason(e.target.value)}
+                  rows={2}
+                  placeholder="Medical, family exigency, or statutory rest cycle..."
+                  className="w-full p-2.5 rounded-xl bg-[#080D16] border border-white/10 text-white"
+                />
+              </div>
+
+              <div className="flex justify-end gap-2 pt-2">
                 <button
                   type="button"
                   onClick={() => setLeaveModalOpen(false)}
-                  className="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-750 text-slate-300 text-xs font-semibold"
+                  className="px-4 py-2 rounded-xl bg-white/5 hover:bg-white/10 text-slate-300"
                 >
                   Cancel
                 </button>
-
                 <button
                   type="submit"
                   disabled={submittingLeave}
-                  className="px-5 py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 text-xs font-bold flex items-center gap-2 shadow-lg shadow-emerald-950/40 transition-all"
+                  className="px-5 py-2 rounded-xl bg-[#00C896] hover:bg-[#08B98A] text-[#050A12] font-bold flex items-center gap-1.5"
                 >
-                  {submittingLeave ? (
-                    <Loader2 className="w-4 h-4 animate-spin" />
-                  ) : (
-                    <Send className="w-4 h-4" />
-                  )}
-                  <span>Submit Leave Application</span>
+                  {submittingLeave ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Send className="w-3.5 h-3.5" />}
+                  <span>Submit Application</span>
                 </button>
               </div>
             </form>

@@ -5,8 +5,8 @@ import { SyncConflictModal } from "@/components/inspections/sync-conflict-modal"
 import { QueryProvider } from "@/components/providers/query-provider";
 
 export const metadata: Metadata = {
-  title: "AI-Based Smart Governance for Coal Mines (SIH26024)",
-  description: "Ministry of Coal & DGMS Smart Compliance Monitoring & Field Portal",
+  title: "CoalDrishti AI - Mine Governance & Statutory Intelligence (SIH26024)",
+  description: "Ministry of Coal & DGMS Smart Compliance Monitoring, Predictive Safety & Field Operations Portal",
   manifest: "/manifest.json",
 };
 

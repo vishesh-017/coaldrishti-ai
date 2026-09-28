@@ -1,52 +1,177 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700;800&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 @layer base {
   :root {
-    --background: 222.2 84% 4.9%;
+    --background: 218 58% 5%;
     --foreground: 210 40% 98%;
+    --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
+    --font-display: 'Space Grotesk', system-ui, sans-serif;
+    --font-mono: 'JetBrains Mono', monospace;
   }
 
   body {
-    @apply bg-[#080d14] text-slate-100 antialiased min-h-screen selection:bg-emerald-500/20 selection:text-emerald-300;
+    @apply bg-[#050A12] text-[#F1F5F9] antialiased min-h-screen selection:bg-emerald-500/25 selection:text-emerald-200 font-sans;
+    background-color: #050A12;
+    background-image: 
+      radial-gradient(ellipse 80% 50% at 50% -20%, rgba(0, 200, 150, 0.04), transparent),
+      linear-gradient(180deg, #050A12 0%, #080D16 50%, #050A12 100%);
+  }
+
+  h1, h2, h3, h4, .font-display {
+    font-family: var(--font-display);
+    letter-spacing: -0.02em;
+  }
+
+  .mono-num, .font-mono {
+    font-family: var(--font-mono);
+    font-variant-numeric: tabular-nums;
   }
 }
 
-/* Custom Scrollbar */
+/* Custom Scrollbar for Command Center */
 * {
   scrollbar-width: thin;
-  scrollbar-color: #334155 #0d141f;
+  scrollbar-color: #202936 #080D16;
 }
 
 ::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
+  width: 5px;
+  height: 5px;
 }
 ::-webkit-scrollbar-track {
-  background: #0d141f;
+  background: #080D16;
 }
 ::-webkit-scrollbar-thumb {
-  background: #1e293b;
-  border-radius: 9999px;
+  background: #202936;
+  border-radius: 4px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #334155;
+  background: #00C896;
 }
 
-/* Leaflet Container Styles */
+/* ─────────────────────────────────────────────────────────────
+   Coal / Mining Visual Language Patterns & Technical Utilities
+   ───────────────────────────────────────────────────────────── */
+
+/* 1. Coal Strata Layers */
+.coal-strata-bg {
+  background: 
+    linear-gradient(180deg, rgba(8, 13, 22, 0.95) 0%, rgba(5, 10, 18, 0.98) 100%),
+    repeating-linear-gradient(0deg, transparent, transparent 19px, rgba(255, 255, 255, 0.015) 20px, transparent 21px);
+}
+
+/* 2. Underground Mine Shaft Grid */
+.mine-shaft-grid {
+  background-size: 32px 32px;
+  background-image: 
+    linear-gradient(to right, rgba(255, 255, 255, 0.02) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
+}
+
+.mine-shaft-grid-dense {
+  background-size: 16px 16px;
+  background-image: 
+    linear-gradient(to right, rgba(0, 200, 150, 0.03) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(0, 200, 150, 0.03) 1px, transparent 1px);
+}
+
+/* 3. Geological Topography / Contour Lines Overlay */
+.geological-contour {
+  background-image: radial-gradient(circle at 50% 50%, rgba(40, 185, 199, 0.03) 0%, transparent 60%),
+    repeating-radial-gradient(circle at 50% 50%, transparent 0, transparent 40px, rgba(255, 255, 255, 0.01) 41px, transparent 42px);
+}
+
+/* 4. Technical Command Panel */
+.technical-panel {
+  background: #111827;
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+  position: relative;
+}
+
+.technical-panel-subtle {
+  background: #0B111C;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.technical-panel-active {
+  background: #111827;
+  border: 1px solid rgba(0, 200, 150, 0.3);
+  box-shadow: 0 0 20px -5px rgba(0, 200, 150, 0.15), inset 0 1px 0 rgba(0, 200, 150, 0.2);
+}
+
+/* Technical Corner Ticks for Military/Government Command UI */
+.corner-ticks::before, .corner-ticks::after {
+  content: '';
+  position: absolute;
+  width: 6px;
+  height: 6px;
+  pointer-events: none;
+}
+.corner-ticks::before {
+  top: -1px;
+  left: -1px;
+  border-top: 1.5px solid #00C896;
+  border-left: 1.5px solid #00C896;
+}
+.corner-ticks::after {
+  bottom: -1px;
+  right: -1px;
+  border-bottom: 1.5px solid #00C896;
+  border-right: 1.5px solid #00C896;
+}
+
+/* 5. Coal Seam Gradient Accents */
+.coal-seam-gradient {
+  background: linear-gradient(135deg, #151D2B 0%, #080D16 100%);
+}
+
+.emerald-glow {
+  box-shadow: 0 0 25px -4px rgba(0, 200, 150, 0.25);
+}
+
+.amber-glow {
+  box-shadow: 0 0 25px -4px rgba(245, 181, 27, 0.25);
+}
+
+.red-glow {
+  box-shadow: 0 0 25px -4px rgba(255, 92, 104, 0.25);
+}
+
+/* 6. Scanline and Radar Effects */
+.scanline-overlay {
+  position: relative;
+  overflow: hidden;
+}
+.scanline-overlay::after {
+  content: " ";
+  display: block;
+  position: absolute;
+  top: 0; left: 0; bottom: 0; right: 0;
+  background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.03), rgba(0, 255, 0, 0.01), rgba(0, 0, 255, 0.03));
+  z-index: 10;
+  background-size: 100% 2px, 3px 100%;
+  pointer-events: none;
+  opacity: 0.3;
+}
+
+/* Leaflet Dark Customization */
 .leaflet-container {
   width: 100%;
   height: 100%;
-  background-color: #0b111a !important;
+  background-color: #050A12 !important;
   font-family: inherit;
 }
 
 .leaflet-popup-content-wrapper, .leaflet-popup-tip {
-  background: #0f172a !important;
-  color: #f1f5f9 !important;
-  border: 1px solid #334155;
-  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.7);
+  background: #111827 !important;
+  color: #F1F5F9 !important;
+  border: 1px solid #202936;
+  box-shadow: 0 12px 30px -5px rgba(0, 0, 0, 0.85);
   border-radius: 8px;
 }
 
@@ -62,31 +187,12 @@
   width: 32px;
   height: 32px;
   border-radius: 50%;
-  background-color: rgba(239, 68, 68, 0.4);
+  background-color: rgba(255, 92, 104, 0.4);
   animation: radar-pulse 2s cubic-bezier(0, 0, 0.2, 1) infinite;
 }
 
-@keyframes radar-pulse {
-  0% { transform: scale(1); opacity: 0.8; }
-  100% { transform: scale(2.5); opacity: 0; }
-}
-
-/* Animate-in utility (for fade-in transitions) */
-@keyframes fadeIn {
-  from { opacity: 0; transform: translateY(8px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
-.animate-in.fade-in {
-  animation: fadeIn var(--tw-animation-duration, 300ms) ease-out both;
-}
-
-/* Custom focus ring for inputs */
-input:focus, textarea:focus, select:focus {
-  outline: none;
-}
-
-/* Smooth scrolling */
+/* Smooth transitions */
 html {
   scroll-behavior: smooth;
 }
+

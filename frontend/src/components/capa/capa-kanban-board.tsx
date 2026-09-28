@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { ViolationCAPA, CAPAState, CAPA_STATE_LABELS, UserRole } from "@/lib/types/domain";
+import { ViolationCAPA, CAPAState, UserRole } from "@/lib/types/domain";
 import { useAuthStore } from "@/lib/store/auth-store";
 import { transitionCAPA } from "@/lib/api/violations";
 import {
@@ -11,31 +11,31 @@ import {
   Clock,
   FileText,
   Paperclip,
-  UploadCloud,
   ShieldCheck,
   UserCheck,
   RotateCcw,
+  Building2,
+  Calendar,
 } from "lucide-react";
 
 interface CAPAKanbanBoardProps {
   initialCapas: ViolationCAPA[];
 }
 
-const COLUMNS: CAPAState[] = [
-  CAPAState.REPORTED,
-  CAPAState.NOTICE_ISSUED,
-  CAPAState.ASSIGNED,
-  CAPAState.RECTIFICATION_SUBMITTED,
-  CAPAState.VERIFIED,
-  CAPAState.CLOSED,
+const COLUMNS: { state: CAPAState; label: string; badgeColor: string }[] = [
+  { state: CAPAState.REPORTED, label: "NEW", badgeColor: "text-rose-400 bg-rose-500/10 border-rose-500/30" },
+  { state: CAPAState.NOTICE_ISSUED, label: "UNDER REVIEW", badgeColor: "text-amber-400 bg-amber-500/10 border-amber-500/30" },
+  { state: CAPAState.ASSIGNED, label: "ACTION ASSIGNED", badgeColor: "text-blue-400 bg-blue-500/10 border-blue-500/30" },
+  { state: CAPAState.RECTIFICATION_SUBMITTED, label: "IN PROGRESS", badgeColor: "text-purple-400 bg-purple-500/10 border-purple-500/30" },
+  { state: CAPAState.VERIFIED, label: "VERIFICATION", badgeColor: "text-teal-400 bg-teal-500/10 border-teal-500/30" },
+  { state: CAPAState.CLOSED, label: "CLOSED", badgeColor: "text-emerald-400 bg-emerald-500/10 border-emerald-500/30" },
 ];
 
 export function CAPAKanbanBoard({ initialCapas }: CAPAKanbanBoardProps) {
   const [capas, setCapas] = useState<ViolationCAPA[]>(initialCapas);
-  const { userRole, activeMineSiteId } = useAuthStore();
+  const { userRole, activeMineSiteId, activeMineName } = useAuthStore();
   const [isTransitioning, setIsTransitioning] = useState<string | null>(null);
 
-  // RBAC checks for state transitions
   const canVerify =
     userRole === UserRole.DGMS_INSPECTOR ||
     userRole === UserRole.COLLIERY_MANAGER ||
@@ -107,22 +107,24 @@ export function CAPAKanbanBoard({ initialCapas }: CAPAKanbanBoardProps) {
   };
 
   return (
-    <div className="w-full overflow-x-auto pb-6">
+    <div className="w-full overflow-x-auto pb-4">
       <div className="grid grid-cols-6 gap-3.5 min-w-[1380px]">
-        {COLUMNS.map((columnState) => {
-          const items = capas.filter((c) => c.capa_state === columnState);
+        {COLUMNS.map((col) => {
+          const items = capas.filter((c) => c.capa_state === col.state);
 
           return (
             <div
-              key={columnState}
-              className="flex flex-col bg-slate-900/80 border border-slate-800 rounded-2xl p-3 shadow-xl h-[720px]"
+              key={col.state}
+              className="flex flex-col bg-[#111827] border border-white/10 rounded-2xl p-3.5 shadow-xl h-[720px]"
             >
               {/* Column Header */}
-              <div className="flex items-center justify-between px-2 py-2 border-b border-slate-800 mb-3">
-                <span className="text-xs font-bold text-slate-200 tracking-wide">
-                  {CAPA_STATE_LABELS[columnState]}
+              <div className="flex items-center justify-between px-2 py-2 border-b border-white/5 mb-3">
+                <span className="text-xs font-bold text-white tracking-wide font-display">
+                  {col.label}
                 </span>
-                <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-slate-800 text-slate-400 border border-slate-700">
+                <span
+                  className={`text-[10px] font-mono px-2 py-0.5 rounded-full border font-bold ${col.badgeColor}`}
+                >
                   {items.length}
                 </span>
               </div>
@@ -135,54 +137,60 @@ export function CAPAKanbanBoard({ initialCapas }: CAPAKanbanBoardProps) {
                   return (
                     <div
                       key={capa.id}
-                      className="p-3.5 rounded-xl border border-slate-800 bg-slate-950/90 hover:border-slate-700 transition-all shadow-md space-y-3"
+                      className="p-3.5 rounded-xl border border-white/5 bg-[#080D16] hover:border-white/20 transition-all shadow-md space-y-2.5 font-mono text-xs"
                     >
-                      <div className="flex items-center justify-between text-[11px] font-mono text-slate-400">
-                        <span className="text-emerald-400 font-semibold">{capa.rule_id}</span>
-                        <span>v{capa.version}</span>
+                      {/* Top Row: Regulation & Version */}
+                      <div className="flex items-center justify-between text-[10px]">
+                        <span className="text-[#00C896] font-bold bg-[#00C896]/10 px-1.5 py-0.2 rounded border border-[#00C896]/30">
+                          {capa.rule_id || "CMR 2017 Reg 123"}
+                        </span>
+                        <span className="text-slate-500 font-bold">
+                          Risk: <span className="text-[#FF5C68]">HIGH</span>
+                        </span>
                       </div>
 
-                      <p className="text-xs font-medium text-slate-200 line-clamp-3 leading-snug">
+                      {/* Mine and Regulation Details */}
+                      <div className="text-[10px] text-slate-400 flex items-center gap-1 truncate">
+                        <Building2 className="w-3 h-3 text-slate-500 shrink-0" />
+                        <span className="truncate">{activeMineName}</span>
+                      </div>
+
+                      {/* Description */}
+                      <p className="text-xs font-sans text-slate-200 line-clamp-3 leading-snug">
                         {capa.description}
                       </p>
 
                       {/* Evidence Attachment Badges */}
                       {capa.evidence_urls && capa.evidence_urls.length > 0 && (
-                        <div className="flex items-center gap-1.5 text-[10px] font-mono text-cyan-400 bg-cyan-950/40 px-2 py-1 rounded border border-cyan-900/60">
+                        <div className="flex items-center gap-1.5 text-[9px] text-[#28B9C7] bg-cyan-950/40 px-2 py-0.5 rounded border border-cyan-900/60">
                           <Paperclip className="w-3 h-3" />
-                          <span>{capa.evidence_urls.length} S3 Evidence Photo(s)</span>
+                          <span>{capa.evidence_urls.length} Evidence Photo(s) Attached</span>
                         </div>
                       )}
 
-                      {/* Metadata Details */}
-                      <div className="pt-2 border-t border-slate-800/80 text-[10px] text-slate-400 space-y-1">
-                        {capa.assigned_to && (
-                          <div className="flex items-center gap-1">
-                            <UserCheck className="w-3 h-3 text-blue-400" />
-                            <span>Assigned: {capa.assigned_to}</span>
-                          </div>
-                        )}
-                        {capa.verified_by && (
-                          <div className="flex items-center gap-1 text-teal-300">
-                            <ShieldCheck className="w-3 h-3 text-teal-400" />
-                            <span>Verified: {capa.verified_by}</span>
-                          </div>
-                        )}
+                      {/* Metadata: Owner & Due Date */}
+                      <div className="pt-2 border-t border-white/5 text-[10px] text-slate-400 space-y-1">
+                        <div className="flex items-center justify-between">
+                          <span className="text-slate-500">Owner:</span>
+                          <span className="text-slate-200 truncate max-w-[120px]">
+                            {capa.assigned_to || "Colliery Manager"}
+                          </span>
+                        </div>
+                        <div className="flex items-center justify-between">
+                          <span className="text-slate-500">Due Date:</span>
+                          <span className="text-[#F5B51B] font-bold">14 Days</span>
+                        </div>
                       </div>
 
                       {/* Transition Button */}
-                      <div className="pt-1">
+                      <div className="pt-1 border-t border-white/5">
                         {nextState && (
                           <button
                             onClick={() => handleAdvance(capa)}
                             disabled={isTransitioning === capa.id}
-                            className={`w-full py-1.5 px-2 rounded-lg text-[11px] font-bold flex items-center justify-center gap-1.5 transition-all shadow-sm ${
-                              nextState === CAPAState.VERIFIED
-                                ? "bg-teal-500/20 text-teal-300 hover:bg-teal-500/30 border border-teal-500/30"
-                                : "bg-emerald-500/20 text-emerald-300 hover:bg-emerald-500/30 border border-emerald-500/30"
-                            }`}
+                            className="w-full py-1.5 px-2 rounded-lg text-[10px] font-bold flex items-center justify-center gap-1.5 transition-all bg-[#00C896]/15 hover:bg-[#00C896]/25 text-[#00C896] border border-[#00C896]/40"
                           >
-                            <span>Move to {CAPA_STATE_LABELS[nextState].split(". ")[1]}</span>
+                            <span>Advance to {COLUMNS.find((c) => c.state === nextState)?.label}</span>
                             <ArrowRight className="w-3 h-3" />
                           </button>
                         )}
@@ -190,10 +198,10 @@ export function CAPAKanbanBoard({ initialCapas }: CAPAKanbanBoardProps) {
                         {capa.capa_state === CAPAState.CLOSED && canReopen && (
                           <button
                             onClick={() => handleReopen(capa)}
-                            className="w-full py-1.5 px-2 rounded-lg text-[11px] font-semibold text-rose-400 bg-rose-500/10 hover:bg-rose-500/20 border border-rose-500/20 flex items-center justify-center gap-1"
+                            className="w-full py-1.5 px-2 rounded-lg text-[10px] font-semibold text-[#FF5C68] bg-rose-500/10 hover:bg-rose-500/20 border border-rose-500/20 flex items-center justify-center gap-1"
                           >
                             <RotateCcw className="w-3 h-3" />
-                            <span>Re-open to Reported</span>
+                            <span>Reopen to New</span>
                           </button>
                         )}
                       </div>
@@ -202,8 +210,8 @@ export function CAPAKanbanBoard({ initialCapas }: CAPAKanbanBoardProps) {
                 })}
 
                 {items.length === 0 && (
-                  <div className="h-32 flex items-center justify-center text-[11px] text-slate-600 font-mono italic">
-                    No violations in this stage
+                  <div className="h-32 flex items-center justify-center text-[10px] text-slate-600 font-mono italic">
+                    No active items in this stage
                   </div>
                 )}
               </div>

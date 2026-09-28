@@ -11,19 +11,19 @@ export default function DashboardLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div className="flex min-h-screen bg-[#080d14]">
+    <div className="flex min-h-screen bg-[#050A12] text-[#F1F5F9] font-sans">
       {/* Sidebar */}
       <AppSidebar />
 
       {/* Main Content Area */}
-      <div className="flex-1 flex flex-col min-w-0">
+      <div className="flex-1 flex flex-col min-w-0 relative">
         <TopNavbar />
         {/* Global Zero-Connectivity Pit Offline Banner */}
         <OfflineStatusBar />
-        <main className="flex-1 p-6 md:p-8 overflow-y-auto max-w-7xl w-full mx-auto">
+        <main className="flex-1 p-4 md:p-6 lg:p-8 overflow-y-auto max-w-7xl w-full mx-auto relative z-10">
           {children}
         </main>
-        {/* Persistent Statutory Safety Rules & Guidelines Footer */}
+        {/* Live Statutory Safety Rules & Status Bar */}
         <SafetyDirectivesFooter />
       </div>
 

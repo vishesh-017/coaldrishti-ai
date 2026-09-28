@@ -165,17 +165,20 @@ export function ManagerDashboard({ data, mineSiteName }: ManagerDashboardProps) 
       {/* ─────────────────────────────────────────────────────────────────── */}
       {/* Statutory Operational Actions Bar */}
       {/* ─────────────────────────────────────────────────────────────────── */}
-      <div className="p-4 rounded-2xl bg-slate-900 border border-slate-800 shadow-xl flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      <div className="p-6 rounded-2xl bg-[#111827] border border-white/10 shadow-2xl corner-ticks flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-center text-blue-400">
-            <FolderLock className="w-5 h-5" />
+          <div className="w-12 h-12 rounded-xl bg-[#00C896]/15 border border-[#00C896]/30 flex items-center justify-center text-[#00C896] shrink-0">
+            <FolderLock className="w-6 h-6" />
           </div>
           <div>
-            <div className="text-xs font-bold text-slate-200">
-              Colliery Statutory Operations &amp; Direct Ministry Escalation
+            <div className="inline-flex items-center gap-2 px-2.5 py-0.5 rounded bg-[#00C896]/10 text-[#00C896] font-mono text-[10px] uppercase font-bold mb-1">
+              COLLIERY PIT COMMAND
             </div>
-            <div className="text-[11px] text-slate-400">
-              {mineSiteName || "Godavarikhani No. 11A Incline (GDK-11A) SCCL"} • Operational Shift Command
+            <h1 className="text-xl font-black text-white font-display">
+              Colliery Operations &amp; Shift Management Cockpit
+            </h1>
+            <div className="text-xs text-slate-300 font-mono mt-0.5">
+              {mineSiteName || "Godavarikhani No. 11A Incline (GDK-11A) SCCL"} &bull; Shift Sirdar Dispatch Active
             </div>
           </div>
         </div>
@@ -183,17 +186,17 @@ export function ManagerDashboard({ data, mineSiteName }: ManagerDashboardProps) 
         <div className="flex items-center gap-3 flex-wrap">
           <Link
             href="/data-logs"
-            className="px-3.5 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-bold transition-all border border-slate-700 flex items-center gap-2"
+            className="px-3.5 py-2.5 rounded-xl bg-[#080D16] hover:bg-black/50 text-slate-200 text-xs font-mono font-bold transition-all border border-white/10 flex items-center gap-2"
           >
-            <FolderLock className="w-3.5 h-3.5 text-blue-400" />
+            <FolderLock className="w-3.5 h-3.5 text-[#00C896]" />
             <span>Open Data Logs Vault</span>
           </Link>
           <button
             onClick={() => setIsEscalationModalOpen(true)}
-            className="px-4 py-2 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white text-xs font-bold transition-all shadow-lg shadow-blue-950 flex items-center gap-2"
+            className="px-4 py-2.5 rounded-xl bg-[#00C896] hover:bg-[#08B98A] text-[#050A12] text-xs font-bold font-display shadow-lg shadow-[#00C896]/20 transition-all flex items-center gap-2"
           >
             <Mail className="w-3.5 h-3.5" />
-            <span>✉️ Dispatch Official Memo to Ministry</span>
+            <span>Dispatch Memo to Ministry</span>
           </button>
         </div>
       </div>

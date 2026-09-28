@@ -27,6 +27,7 @@ frontend/.next/
 frontend/out/
 frontend/build/
 .next/
+*.tsbuildinfo
 
 # Logs
 *.log
