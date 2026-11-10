@@ -3,6 +3,7 @@ import "@/styles/globals.css";
 import React from "react";
 import { SyncConflictModal } from "@/components/inspections/sync-conflict-modal";
 import { QueryProvider } from "@/components/providers/query-provider";
+import { Analytics } from "@vercel/analytics/next";
 
 export const metadata: Metadata = {
   title: "CoalDrishti AI - Mine Governance & Statutory Intelligence (SIH26024)",
@@ -23,6 +24,7 @@ export default function RootLayout({
           {/* Global Conflict Resolution Modal */}
           <SyncConflictModal />
         </QueryProvider>
+        <Analytics />
       </body>
     </html>
   );
